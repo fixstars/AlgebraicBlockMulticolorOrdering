@@ -14,31 +14,8 @@ using Color = Index;
 static constexpr std::size_t MAX_COLOR_COUNT = 27;
 static constexpr std::size_t BLOCK_SIZE = 2; // 2x2にブロック化
 
-static void OutputResult(const std::string name, const Matrix& A, const Color color[])
+static void OutputResult(const std::string name, const Matrix& A, const Index row[], const Color color[])
 {
-	// 並び替え後の行番号→元の行番号の変換表
-	auto row = std::make_unique<Index[]>(N);
-	{
-		// 色番号の小さい順に並び替え（同じ色の場合は行番号の小さい順）
-		auto pair = std::make_unique<std::pair<Color, Index>[]>(N);
-		for(auto i = decltype(N)(0); i < N; i++)
-		{
-			pair[i].first = color[i];
-			pair[i].second = i;
-		}
-		std::sort(pair.get(), pair.get() + N, [](auto left, auto right)
-		{
-			return (left.first != right.first) ? (left.first < right.first) : (left.second < right.second);
-		});
-		const auto colorCount = pair[n - 1].first; // 最後の色が色番号最大のはず
-
-												   // 行番号だけの配列に変換
-		std::transform(pair.get(), pair.get() + N, row.get(), [](const auto p)
-		{
-			return p.second;
-		});
-	}
-
 	// 元の行番号→並び替え後の行番号の変換表
 	auto lut = std::make_unique<Index[]>(N);
 	{
@@ -123,7 +100,29 @@ static void GeometicMultiColoring(const Matrix& A)
 		}
 	}
 
-	OutputResult("幾何的多色順序付け", A, color.get());
+	// 並び替え後の行番号→元の行番号の変換表
+	auto row = std::make_unique<Index[]>(N);
+	{
+		// 色番号の小さい順に並び替え（同じ色の場合は行番号の小さい順）
+		auto pair = std::make_unique<std::pair<Color, Index>[]>(N);
+		for(auto i = decltype(N)(0); i < N; i++)
+		{
+			pair[i].first = color[i];
+			pair[i].second = i;
+		}
+		std::sort(pair.get(), pair.get() + N, [](auto left, auto right)
+		{
+			return (left.first != right.first) ? (left.first < right.first) : (left.second < right.second);
+		});
+		
+		// 行番号だけの配列に変換
+		std::transform(pair.get(), pair.get() + N, row.get(), [](const auto p)
+		{
+			return p.second;
+		});
+	}
+
+	OutputResult("幾何的多色順序付け", A, row.get(), color.get());
 }
 
 // 幾何形状を用いない多色順序付け
@@ -163,7 +162,104 @@ static void AlgebraicMultiColoring(const Matrix& A)
 		}
 	}
 
-	OutputResult("代数的多色順序付け", A, color.get());
+	// 並び替え後の行番号→元の行番号の変換表
+	auto row = std::make_unique<Index[]>(N);
+	{
+		// 色番号の小さい順に並び替え（同じ色の場合は行番号の小さい順）
+		auto pair = std::make_unique<std::pair<Color, Index>[]>(N);
+		for(auto i = decltype(N)(0); i < N; i++)
+		{
+			pair[i].first = color[i];
+			pair[i].second = i;
+		}
+		std::sort(pair.get(), pair.get() + N, [](auto left, auto right)
+		{
+			return (left.first != right.first) ? (left.first < right.first) : (left.second < right.second);
+		});
+
+		// 行番号だけの配列に変換
+		std::transform(pair.get(), pair.get() + N, row.get(), [](const auto p)
+		{
+			return p.second;
+		});
+	}
+
+	OutputResult("代数的多色順序付け", A, row.get(), color.get());
+}
+
+// 幾何形状を用いたブロック化多色順序付け
+static void GeometicBlockMultiColoring(const Matrix& A)
+{
+	auto color = std::make_unique<Color[]>(N);
+	using Block = Index;
+	auto block = std::make_unique<Block[]>(N);
+
+	for(auto i = decltype(n)(0); i < n; i++)
+	{
+		for(auto j = decltype(n)(0); j < n; j++)
+		{
+			const auto idx = i*n + j;
+
+			const auto blockI = i / BLOCK_SIZE;
+			const auto blockJ = j / BLOCK_SIZE;
+			block[idx] = blockI*n / BLOCK_SIZE + blockJ;
+
+			const auto isEvenRow = blockI % 2 == 0;
+			const auto isEvenColumn = blockJ % 2 == 0;
+
+			color[idx] = isEvenRow ?
+				(isEvenColumn ?
+					Color(1) :  // 偶数行の偶数列
+					Color(2)) : // 偶数行の奇数列
+				(isEvenColumn ?
+					Color(3) :  // 奇数業の偶数列
+					Color(4));  // 奇数業の奇数列
+		}
+	}
+
+	// 並び替え後の行番号→元の行番号の変換表
+	auto row = std::make_unique<Index[]>(N);
+	{
+		// 色番号の小さい順に並び替え
+		// ・同じ色の場合はブロック番号の小さい順
+		// ・同じブロックなら行番号の小さい順
+		auto data = std::make_unique<std::tuple<Color, Block, Index>[]>(N);
+		for(auto i = decltype(N)(0); i < N; i++)
+		{
+			data[i] = std::make_tuple(color[i], block[i], i);
+		}
+		std::sort(data.get(), data.get() + N, [](auto left, auto right)
+		{
+			{
+				const auto leftColor = std::get<0>(left); const auto rightColor = std::get<0>(right);
+				if(leftColor != rightColor)
+				{
+					return leftColor < rightColor;
+				}
+			}
+			{
+				const auto leftBlock = std::get<1>(left); const auto rightBlock = std::get<1>(right);
+				if(leftBlock != rightBlock)
+				{
+					return leftBlock < rightBlock;
+				}
+			}
+			{
+				const auto leftIndex = std::get<2>(left); const auto rightIndex = std::get<2>(right);
+				{
+					return leftIndex < rightIndex;
+				}
+			}
+		});
+
+		// 行番号だけの配列に変換
+		std::transform(data.get(), data.get() + N, row.get(), [](const auto d)
+		{
+			return std::get<2>(d);
+		});
+	}
+
+	OutputResult("幾何的ブロック化多色順序付け", A, row.get(), color.get());
 }
 
 int main()
@@ -281,8 +377,9 @@ int main()
 		std::cout << std::endl;
 	}
 
-	GeometicMultiColoring(A);
-	AlgebraicMultiColoring(A);
+	//GeometicMultiColoring(A);
+	//AlgebraicMultiColoring(A);
+	GeometicBlockMultiColoring(A);
 
 	system("pause");
 	return 0;
