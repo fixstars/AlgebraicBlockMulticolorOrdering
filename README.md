@@ -16,6 +16,10 @@ You can select the license of your choice from as following:
 
 ## Example result
 
+### Matrix
 * original matrix ![origin](doc/origin.PNG)
 * (non-block) multicolor ordering ![multicolor](doc/multicolor.PNG)
 * block multicolor ordering ![blockmulticolor](doc/blockmulticolor.PNG)
+
+### Gauss-Seidel
+![origin](doc/gs.png)
