@@ -1,6 +1,7 @@
-//#define ENABLE_ROW_DATA
+ï»¿//#define ENABLE_ROW_DATA
 
 #include "Abmc.hpp"
+#include "SymGS.hpp"
 
 int main()
 {
@@ -99,7 +100,7 @@ int main()
 				{
 					const auto q = ii*n + jj;
 
-					const auto value = (p == q) ? 26 : -1;
+					const auto value = (p == q) ? 9 : -1;
 					A(p, q) = value;
 				}
 			}
@@ -107,7 +108,7 @@ int main()
 	}
 #endif
 
-	std::cout << "Œ³s—ñ" << std::endl;
+	std::cout << "å…ƒè¡Œåˆ—" << std::endl;
 	for(auto i = decltype(N)(0); i < N; i++)
 	{
 		for(auto j = decltype(N)(0); j < N; j++)
@@ -117,14 +118,21 @@ int main()
 		std::cout << std::endl;
 	}
 
+	Vector b(N);
+	Vector expect(N);
+	std::fill_n(expect.begin(), N, 100.1);
+	b = boost::numeric::ublas::prod(A, expect);
+
+	GaussSeidel(A, b, expect);
+
 #ifndef ENABLE_ROW_DATA
-	GeometicMultiColoring(A);
+	//GeometicMultiColoring(A);
 #endif
-	AlgebraicMultiColoring(A);
+	//AlgebraicMultiColoring(A);
 #ifndef ENABLE_ROW_DATA
-	GeometicBlockMultiColoring(A);
+	//GeometicBlockMultiColoring(A);
 #endif
-	AlgebraicBlockMultiColoring(A);
+	//AlgebraicBlockMultiColoring(A);
 
 	system("pause");
 	return 0;

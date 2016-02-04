@@ -1,29 +1,20 @@
-#ifndef ABMC_HPP_INCLUDED
+ï»¿#ifndef ABMC_HPP_INCLUDED
 #define ABMC_HPP_INCLUDED
 #include <iostream>
 #include <algorithm>
 #include <queue>
 
-#include <boost/numeric/ublas/matrix_sparse.hpp>
-
-static constexpr std::size_t n = 8;
-static constexpr std::size_t N = n*n;
-
-using Matrix = boost::numeric::ublas::compressed_matrix<double>;
-using Vector = boost::numeric::ublas::vector<double>;
-using Index = std::remove_const_t<decltype(N)>;
-using Color = Index;
-using Block = Index;
+#include "common.hpp"
 
 static constexpr std::size_t MAX_COLOR_COUNT = 27;
-static constexpr std::size_t BLOCK_SIZE = 2; // 2x2‚ÉƒuƒƒbƒN‰»
+static constexpr std::size_t BLOCK_SIZE = 2; // 2x2ã«ãƒ–ãƒ­ãƒƒã‚¯åŒ–
 
 static void OutputResult(const std::string name, const Matrix& A, const Index row[], const Color color[])
 {
-	// Œ³‚Ìs”Ô†¨•À‚Ñ‘Ö‚¦Œã‚Ìs”Ô†‚Ì•ÏŠ·•\
+	// å…ƒã®è¡Œç•ªå·â†’ä¸¦ã³æ›¿ãˆå¾Œã®è¡Œç•ªå·ã®å¤‰æ›è¡¨
 	auto lut = std::make_unique<Index[]>(N);
 	{
-		// •À‚Ñ‘Ö‚¦Œã‚Ìs”Ô†‡‚É
+		// ä¸¦ã³æ›¿ãˆå¾Œã®è¡Œç•ªå·é †ã«
 		auto pair = std::make_unique<std::pair<Index, Index>[]>(N);
 		for(auto i = decltype(N)(0); i < N; i++)
 		{
@@ -35,7 +26,7 @@ static void OutputResult(const std::string name, const Matrix& A, const Index ro
 			return (left.first < right.first);
 		});
 
-		// •ÏŠ·•\
+		// å¤‰æ›è¡¨
 		std::transform(pair.get(), pair.get() + N, lut.get(), [](const auto p)
 		{
 			return p.second;
@@ -50,7 +41,7 @@ static void OutputResult(const std::string name, const Matrix& A, const Index ro
 		const auto offset = A.index1_data()[r];
 		const auto count = A.index1_data()[r + 1] - offset;
 
-		// Ú‘±‚µ‚Ä‚¢‚é“_‚Ég‚í‚ê‚Ä‚¢‚éF‚ğô‚¢o‚·
+		// æ¥ç¶šã—ã¦ã„ã‚‹ç‚¹ã«ä½¿ã‚ã‚Œã¦ã„ã‚‹è‰²ã‚’æ´—ã„å‡ºã™
 		for(auto idx = decltype(count)(0); idx < count; idx++)
 		{
 			const auto j = A.index2_data()[offset + idx];
@@ -83,10 +74,10 @@ static void OutputResult(const std::string name, const Matrix& A, const Index ro
 #endif
 }
 
-// i”ñƒuƒƒbƒN‰»j‘½F‡˜•t‚¯‚Ìs”Ô†”z—ñ‚ğ¶¬
+// ï¼ˆéãƒ–ãƒ­ãƒƒã‚¯åŒ–ï¼‰å¤šè‰²é †åºä»˜ã‘ã®è¡Œç•ªå·é…åˆ—ã‚’ç”Ÿæˆ
 static void CreateRow(Index row[], const Index color[])
 {
-	// F”Ô†‚Ì¬‚³‚¢‡‚É•À‚Ñ‘Ö‚¦i“¯‚¶F‚Ìê‡‚Ís”Ô†‚Ì¬‚³‚¢‡j
+	// è‰²ç•ªå·ã®å°ã•ã„é †ã«ä¸¦ã³æ›¿ãˆï¼ˆåŒã˜è‰²ã®å ´åˆã¯è¡Œç•ªå·ã®å°ã•ã„é †ï¼‰
 	auto pair = std::make_unique<std::pair<Color, Index>[]>(N);
 	for(auto i = decltype(N)(0); i < N; i++)
 	{
@@ -98,14 +89,14 @@ static void CreateRow(Index row[], const Index color[])
 		return (left.first != right.first) ? (left.first < right.first) : (left.second < right.second);
 	});
 
-	// s”Ô†‚¾‚¯‚Ì”z—ñ‚É•ÏŠ·
+	// è¡Œç•ªå·ã ã‘ã®é…åˆ—ã«å¤‰æ›
 	std::transform(pair.get(), pair.get() + N, row, [](const auto p)
 	{
 		return p.second;
 	});
 }
 
-// Šô‰½Œ`ó‚ğ—p‚¢‚½‘½F‡˜•t‚¯
+// å¹¾ä½•å½¢çŠ¶ã‚’ç”¨ã„ãŸå¤šè‰²é †åºä»˜ã‘
 static void GeometicMultiColoring(const Matrix& A)
 {
 	auto color = std::make_unique<Color[]>(N);
@@ -121,19 +112,19 @@ static void GeometicMultiColoring(const Matrix& A)
 
 			color[idx] = isEvenRow ?
 				(isEvenColumn ?
-					Color(1) :  // ‹ô”s‚Ì‹ô”—ñ
-					Color(2)) : // ‹ô”s‚ÌŠï”—ñ
+					Color(1) :  // å¶æ•°è¡Œã®å¶æ•°åˆ—
+					Color(2)) : // å¶æ•°è¡Œã®å¥‡æ•°åˆ—
 				(isEvenColumn ?
-					Color(3) :  // Šï”‹Æ‚Ì‹ô”—ñ
-					Color(4));  // Šï”‹Æ‚ÌŠï”—ñ
+					Color(3) :  // å¥‡æ•°æ¥­ã®å¶æ•°åˆ—
+					Color(4));  // å¥‡æ•°æ¥­ã®å¥‡æ•°åˆ—
 		}
 	}
 
-	// •À‚Ñ‘Ö‚¦Œã‚Ìs”Ô†¨Œ³‚Ìs”Ô†‚Ì•ÏŠ·•\
+	// ä¸¦ã³æ›¿ãˆå¾Œã®è¡Œç•ªå·â†’å…ƒã®è¡Œç•ªå·ã®å¤‰æ›è¡¨
 	auto row = std::make_unique<Index[]>(N);
 	CreateRow(row.get(), color.get());
 
-	OutputResult("Šô‰½“I‘½F‡˜•t‚¯", A, row.get(), color.get());
+	OutputResult("å¹¾ä½•çš„å¤šè‰²é †åºä»˜ã‘", A, row.get(), color.get());
 }
 
 static decltype(auto) AlgebraicMultiColoringMain(const Matrix& A)
@@ -143,14 +134,14 @@ static decltype(auto) AlgebraicMultiColoringMain(const Matrix& A)
 	auto inNeighbor = std::array<bool, MAX_COLOR_COUNT>();
 	constexpr Color INVALID_COLOR = 0;
 	auto color = std::vector<Color>(size, INVALID_COLOR);
-	color[0] = Color(1); // Å‰‚Ì“_‚ÍF1
+	color[0] = Color(1); // æœ€åˆã®ç‚¹ã¯è‰²1
 
 	for(auto i = decltype(size)(1); i < size; i++)
 	{
 		const auto offset = A.index1_data()[i];
 		const auto count = A.index1_data()[i + 1] - offset;
 
-		// Ú‘±‚µ‚Ä‚¢‚é“_‚Ég‚í‚ê‚Ä‚¢‚éF‚ğô‚¢o‚·
+		// æ¥ç¶šã—ã¦ã„ã‚‹ç‚¹ã«ä½¿ã‚ã‚Œã¦ã„ã‚‹è‰²ã‚’æ´—ã„å‡ºã™
 		std::fill_n(inNeighbor.begin(), MAX_COLOR_COUNT, false);
 		for(auto idx = decltype(count)(0); idx < count; idx++)
 		{
@@ -162,7 +153,7 @@ static decltype(auto) AlgebraicMultiColoringMain(const Matrix& A)
 			}
 		}
 
-		// g‚í‚ê‚Ä‚¢‚È‚¢F‚Ì‚¤‚¿Å¬’l‚ğ©•ª‚ÌF‚É‚·‚é
+		// ä½¿ã‚ã‚Œã¦ã„ãªã„è‰²ã®ã†ã¡æœ€å°å€¤ã‚’è‡ªåˆ†ã®è‰²ã«ã™ã‚‹
 		for(Color candiate = 1; candiate < MAX_COLOR_COUNT; candiate++)
 		{
 			if(!inNeighbor[candiate])
@@ -176,24 +167,24 @@ static decltype(auto) AlgebraicMultiColoringMain(const Matrix& A)
 	return color;
 }
 
-// Šô‰½Œ`ó‚ğ—p‚¢‚È‚¢‘½F‡˜•t‚¯
+// å¹¾ä½•å½¢çŠ¶ã‚’ç”¨ã„ãªã„å¤šè‰²é †åºä»˜ã‘
 static void AlgebraicMultiColoring(const Matrix& A)
 {
 	const auto&& color = AlgebraicMultiColoringMain(A);
 
-	// •À‚Ñ‘Ö‚¦Œã‚Ìs”Ô†¨Œ³‚Ìs”Ô†‚Ì•ÏŠ·•\
+	// ä¸¦ã³æ›¿ãˆå¾Œã®è¡Œç•ªå·â†’å…ƒã®è¡Œç•ªå·ã®å¤‰æ›è¡¨
 	auto row = std::make_unique<Index[]>(N);
 	CreateRow(row.get(), color.data());
 
-	OutputResult("‘ã”“I‘½F‡˜•t‚¯", A, row.get(), color.data());
+	OutputResult("ä»£æ•°çš„å¤šè‰²é †åºä»˜ã‘", A, row.get(), color.data());
 }
 
-// i”ñƒuƒƒbƒN‰»j‘½F‡˜•t‚¯‚Ìs”Ô†”z—ñ‚ğ¶¬
+// ï¼ˆéãƒ–ãƒ­ãƒƒã‚¯åŒ–ï¼‰å¤šè‰²é †åºä»˜ã‘ã®è¡Œç•ªå·é…åˆ—ã‚’ç”Ÿæˆ
 static void CreateRow(Index row[], const Index color[], const Block block[])
 {
-	// F”Ô†‚Ì¬‚³‚¢‡‚É•À‚Ñ‘Ö‚¦
-	// E“¯‚¶F‚Ìê‡‚ÍƒuƒƒbƒN”Ô†‚Ì¬‚³‚¢‡
-	// E“¯‚¶ƒuƒƒbƒN‚È‚çs”Ô†‚Ì¬‚³‚¢‡
+	// è‰²ç•ªå·ã®å°ã•ã„é †ã«ä¸¦ã³æ›¿ãˆ
+	// ãƒ»åŒã˜è‰²ã®å ´åˆã¯ãƒ–ãƒ­ãƒƒã‚¯ç•ªå·ã®å°ã•ã„é †
+	// ãƒ»åŒã˜ãƒ–ãƒ­ãƒƒã‚¯ãªã‚‰è¡Œç•ªå·ã®å°ã•ã„é †
 	auto data = std::make_unique<std::tuple<Color, Block, Index>[]>(N);
 	for(auto i = decltype(N)(0); i < N; i++)
 	{
@@ -223,14 +214,14 @@ static void CreateRow(Index row[], const Index color[], const Block block[])
 		}
 	});
 
-	// s”Ô†‚¾‚¯‚Ì”z—ñ‚É•ÏŠ·
+	// è¡Œç•ªå·ã ã‘ã®é…åˆ—ã«å¤‰æ›
 	std::transform(data.get(), data.get() + N, row, [](const auto d)
 	{
 		return std::get<2>(d);
 	});
 }
 
-// Šô‰½Œ`ó‚ğ—p‚¢‚½ƒuƒƒbƒN‰»‘½F‡˜•t‚¯
+// å¹¾ä½•å½¢çŠ¶ã‚’ç”¨ã„ãŸãƒ–ãƒ­ãƒƒã‚¯åŒ–å¤šè‰²é †åºä»˜ã‘
 static void GeometicBlockMultiColoring(const Matrix& A)
 {
 	auto color = std::make_unique<Color[]>(N);
@@ -251,90 +242,90 @@ static void GeometicBlockMultiColoring(const Matrix& A)
 
 			color[idx] = isEvenRow ?
 				(isEvenColumn ?
-					Color(1) :  // ‹ô”s‚Ì‹ô”—ñ
-					Color(2)) : // ‹ô”s‚ÌŠï”—ñ
+					Color(1) :  // å¶æ•°è¡Œã®å¶æ•°åˆ—
+					Color(2)) : // å¶æ•°è¡Œã®å¥‡æ•°åˆ—
 				(isEvenColumn ?
-					Color(3) :  // Šï”‹Æ‚Ì‹ô”—ñ
-					Color(4));  // Šï”‹Æ‚ÌŠï”—ñ
+					Color(3) :  // å¥‡æ•°æ¥­ã®å¶æ•°åˆ—
+					Color(4));  // å¥‡æ•°æ¥­ã®å¥‡æ•°åˆ—
 		}
 	}
 
-	// •À‚Ñ‘Ö‚¦Œã‚Ìs”Ô†¨Œ³‚Ìs”Ô†‚Ì•ÏŠ·•\
+	// ä¸¦ã³æ›¿ãˆå¾Œã®è¡Œç•ªå·â†’å…ƒã®è¡Œç•ªå·ã®å¤‰æ›è¡¨
 	auto row = std::make_unique<Index[]>(N);
 	CreateRow(row.get(), color.get(), block.get());
 
-	OutputResult("Šô‰½“IƒuƒƒbƒN‰»‘½F‡˜•t‚¯", A, row.get(), color.get());
+	OutputResult("å¹¾ä½•çš„ãƒ–ãƒ­ãƒƒã‚¯åŒ–å¤šè‰²é †åºä»˜ã‘", A, row.get(), color.get());
 }
 
-// Šô‰½Œ`ó‚ğ—p‚¢‚È‚¢‘½F‡˜•t‚¯
+// å¹¾ä½•å½¢çŠ¶ã‚’ç”¨ã„ãªã„å¤šè‰²é †åºä»˜ã‘
 static void AlgebraicBlockMultiColoring(const Matrix& A)
 {
 	constexpr auto INVALID_BLOCK = Block(0);
 	auto block = std::make_unique<Block[]>(N);
 
-	constexpr auto MAX_COUNT_PER_BLOCK = BLOCK_SIZE*BLOCK_SIZE; // 1ƒuƒƒbƒN“à‚Ì—v‘f”
-	constexpr auto MAX_BLOCK_COUNT = N; // Å‘å‚ÍA1ƒuƒƒbƒN1—v‘f‚Ì
+	constexpr auto MAX_COUNT_PER_BLOCK = BLOCK_SIZE*BLOCK_SIZE; // 1ãƒ–ãƒ­ãƒƒã‚¯å†…ã®è¦ç´ æ•°
+	constexpr auto MAX_BLOCK_COUNT = N; // æœ€å¤§ã¯ã€1ãƒ–ãƒ­ãƒƒã‚¯1è¦ç´ ã®æ™‚
 	auto countPerBlock = std::make_unique<std::size_t[]>(MAX_BLOCK_COUNT);
 	std::fill_n(countPerBlock.get(), MAX_BLOCK_COUNT, 0);
 
-	// ƒuƒƒbƒN‚ÉŠ„‚è“–‚Ä
+	// ãƒ–ãƒ­ãƒƒã‚¯ã«å‰²ã‚Šå½“ã¦
 	auto blockCount = Block(1);
 	for(auto i = decltype(N)(0); i < N; i++)
 	{
-		// ‚Ü‚¾‚Ç‚ÌƒuƒƒbƒN‚É‚à“ü‚Á‚Ä‚¢‚È‚©‚Á‚½‚ç
+		// ã¾ã ã©ã®ãƒ–ãƒ­ãƒƒã‚¯ã«ã‚‚å…¥ã£ã¦ã„ãªã‹ã£ãŸã‚‰
 		if(block[i] == INVALID_BLOCK)
 		{
-			// Ÿ‚ÌƒuƒƒbƒN‚ÉŠ„‚è“–‚Ä
+			// æ¬¡ã®ãƒ–ãƒ­ãƒƒã‚¯ã«å‰²ã‚Šå½“ã¦
 			block[i] = blockCount;
 			countPerBlock[blockCount]++;
 
-			// ‚Ü‚¾‚±‚ÌƒuƒƒbƒN‚É‹ó‚«‚ª‚ ‚ê‚Î
+			// ã¾ã ã“ã®ãƒ–ãƒ­ãƒƒã‚¯ã«ç©ºããŒã‚ã‚Œã°
 			if(countPerBlock[blockCount] < MAX_COUNT_PER_BLOCK)
 			{
 				auto candidate = std::queue<Index>();
 				{
-					// Ú‘±‚µ‚Ä‚¢‚é“_‚Ì‚¤‚¿
+					// æ¥ç¶šã—ã¦ã„ã‚‹ç‚¹ã®ã†ã¡
 					const auto offset = A.index1_data()[i];
 					const auto count = A.index1_data()[i + 1] - offset;
 					for(auto idx = decltype(count)(0); idx < count; idx++)
 					{
 						const auto j = A.index2_data()[offset + idx];
-						// ‚Ü‚¾ƒuƒƒbƒN‚ÉŠ„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚È‚¢“_‚ğ
-						// i©•ª©g‚Íœ‚­j
+						// ã¾ã ãƒ–ãƒ­ãƒƒã‚¯ã«å‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦ã„ãªã„ç‚¹ã‚’
+						// ï¼ˆè‡ªåˆ†è‡ªèº«ã¯é™¤ãï¼‰
 						if((i != j) && (block[j] == INVALID_BLOCK))
 						{
-							// ‚±‚ÌƒuƒƒbƒN‚É“ü‚ê‚éŒó•â“_‚É‚·‚é
+							// ã“ã®ãƒ–ãƒ­ãƒƒã‚¯ã«å…¥ã‚Œã‚‹å€™è£œç‚¹ã«ã™ã‚‹
 							candidate.push(j);
 						}
 					}
 				}
 
-				// ƒuƒƒbƒN‚É‹ó‚«‚ª‚ ‚ê‚Î
+				// ãƒ–ãƒ­ãƒƒã‚¯ã«ç©ºããŒã‚ã‚Œã°
 				for(auto j = candidate.front(); !candidate.empty() && (countPerBlock[blockCount] < MAX_COUNT_PER_BLOCK); candidate.pop())
 				{
 					j = candidate.front();
 
-					// Œó•â“_‚ªŠù‚É’Ç‰ÁÏ‚İ‚Å‚È‚¯‚ê‚Î
+					// å€™è£œç‚¹ãŒæ—¢ã«è¿½åŠ æ¸ˆã¿ã§ãªã‘ã‚Œã°
 					if(block[j] == INVALID_BLOCK)
 					{
-						// Œó•â“_‚ğƒuƒƒbƒN‚É“ü‚ê‚é
+						// å€™è£œç‚¹ã‚’ãƒ–ãƒ­ãƒƒã‚¯ã«å…¥ã‚Œã‚‹
 						block[j] = blockCount;
 						countPerBlock[blockCount]++;
 
-						// ‚Ü‚¾‚±‚ÌƒuƒƒbƒN‚É‹ó‚«‚ª‚ ‚ê‚Î
+						// ã¾ã ã“ã®ãƒ–ãƒ­ãƒƒã‚¯ã«ç©ºããŒã‚ã‚Œã°
 						if(countPerBlock[blockCount] < MAX_COUNT_PER_BLOCK)
 						{
-							// ƒuƒƒbƒN‚É“ü‚ê‚½“_‚ªÚ‘±‚µ‚Ä‚¢‚é“_‚Ì‚¤‚¿
+							// ãƒ–ãƒ­ãƒƒã‚¯ã«å…¥ã‚ŒãŸç‚¹ãŒæ¥ç¶šã—ã¦ã„ã‚‹ç‚¹ã®ã†ã¡
 							const auto offset = A.index1_data()[j];
 							const auto count = A.index1_data()[j + 1] - offset;
 							for(auto idx = decltype(count)(0); idx < count; idx++)
 							{
 								const auto k = A.index2_data()[offset + idx];
-								// ‚Ü‚¾ƒuƒƒbƒN‚ÉŠ„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚È‚¢“_‚ğ
-								// i©•ª©g‚Íœ‚­j
+								// ã¾ã ãƒ–ãƒ­ãƒƒã‚¯ã«å‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦ã„ãªã„ç‚¹ã‚’
+								// ï¼ˆè‡ªåˆ†è‡ªèº«ã¯é™¤ãï¼‰
 								if((j != k) && (block[k] == INVALID_BLOCK))
 								{
-									// ‚±‚ÌƒuƒƒbƒN‚É“ü‚ê‚éŒó•â“_‚É‚·‚é
+									// ã“ã®ãƒ–ãƒ­ãƒƒã‚¯ã«å…¥ã‚Œã‚‹å€™è£œç‚¹ã«ã™ã‚‹
 									candidate.push(k);
 								}
 							}
@@ -346,27 +337,27 @@ static void AlgebraicBlockMultiColoring(const Matrix& A)
 			blockCount++;
 		}
 	}
-	blockCount--; // ƒuƒƒbƒN”
+	blockCount--; // ãƒ–ãƒ­ãƒƒã‚¯æ•°
 
-	// ƒuƒƒbƒNŠÔ‚ÌÚ‘±s—ñ‚ğ¶¬
+	// ãƒ–ãƒ­ãƒƒã‚¯é–“ã®æ¥ç¶šè¡Œåˆ—ã‚’ç”Ÿæˆ
 	Matrix M(blockCount, blockCount);
 	for(auto i = decltype(N)(0); i < N; i++)
 	{
-		const auto blockI = block[i] - 1; // ¦ƒuƒƒbƒN”Ô†‚Í1‚©‚çn‚Ü‚é‚Ì‚Å
+		const auto blockI = block[i] - 1; // â€»ãƒ–ãƒ­ãƒƒã‚¯ç•ªå·ã¯1ã‹ã‚‰å§‹ã¾ã‚‹ã®ã§
 
-		// ‚±‚Ì“_‚ªÚ‘±‚µ‚Ä‚¢‚é“_‚ÌƒuƒƒbƒN‚ÆÚ‘±
+		// ã“ã®ç‚¹ãŒæ¥ç¶šã—ã¦ã„ã‚‹ç‚¹ã®ãƒ–ãƒ­ãƒƒã‚¯ã¨æ¥ç¶š
 		const auto offset = A.index1_data()[i];
 		const auto count = A.index1_data()[i + 1] - offset;
 		for(auto idx = decltype(count)(0); idx < count; idx++)
 		{
 			const auto j = A.index2_data()[offset + idx];
-			const auto blockJ = block[j] - 1; // ¦ƒuƒƒbƒN”Ô†‚Í1‚©‚çn‚Ü‚é‚Ì‚Å
+			const auto blockJ = block[j] - 1; // â€»ãƒ–ãƒ­ãƒƒã‚¯ç•ªå·ã¯1ã‹ã‚‰å§‹ã¾ã‚‹ã®ã§
 
 			M(blockI, blockJ) = 1;
 		}
 	}
 
-	// ƒuƒƒbƒNŠÔ‚ÌÚ‘±s—ñ‚É‘Î‚µ‚Ä‘ã”“Ii”ñƒuƒƒbƒN‰»j‘½F‡˜•t‚¯‚ğÀs
+	// ãƒ–ãƒ­ãƒƒã‚¯é–“ã®æ¥ç¶šè¡Œåˆ—ã«å¯¾ã—ã¦ä»£æ•°çš„ï¼ˆéãƒ–ãƒ­ãƒƒã‚¯åŒ–ï¼‰å¤šè‰²é †åºä»˜ã‘ã‚’å®Ÿè¡Œ
 	const auto colorBlock = AlgebraicMultiColoringMain(M);
 
 	auto color = std::make_unique<Color[]>(N);
@@ -378,11 +369,11 @@ static void AlgebraicBlockMultiColoring(const Matrix& A)
 	}
 
 
-	// •À‚Ñ‘Ö‚¦Œã‚Ìs”Ô†¨Œ³‚Ìs”Ô†‚Ì•ÏŠ·•\
+	// ä¸¦ã³æ›¿ãˆå¾Œã®è¡Œç•ªå·â†’å…ƒã®è¡Œç•ªå·ã®å¤‰æ›è¡¨
 	auto row = std::make_unique<Index[]>(N);
 	CreateRow(row.get(), color.get(), block.get());
 
-	OutputResult("‘ã”“IƒuƒƒbƒN‰»‘½F‡˜•t‚¯", A, row.get(), color.get());
+	OutputResult("ä»£æ•°çš„ãƒ–ãƒ­ãƒƒã‚¯åŒ–å¤šè‰²é †åºä»˜ã‘", A, row.get(), color.get());
 }
 
 #endif

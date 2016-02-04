@@ -135,6 +135,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Abmc.hpp" />
+    <ClInclude Include="common.hpp" />
+    <ClInclude Include="SymGS.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
