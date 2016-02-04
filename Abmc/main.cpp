@@ -266,7 +266,7 @@ static void GeometicBlockMultiColoring(const Matrix& A)
 	OutputResult("幾何的ブロック化多色順序付け", A, row.get(), color.get());
 }
 
-// 幾何形状を用いた多色順序付け
+// 幾何形状を用いない多色順序付け
 static void AlgebraicBlockMultiColoring(const Matrix& A)
 {
 	constexpr auto INVALID_BLOCK = Block(0);
@@ -314,25 +314,29 @@ static void AlgebraicBlockMultiColoring(const Matrix& A)
 				{
 					j = candidate.front();
 
-					// 候補点をブロックに入れる
-					block[j] = blockCount;
-					countPerBlock[blockCount]++;
-
-					// まだこのブロックに空きがあれば
-					if(countPerBlock[blockCount] < MAX_COUNT_PER_BLOCK)
+					// 候補点が既に追加済みでなければ
+					if(block[j] == INVALID_BLOCK)
 					{
-						// ブロックに入れた点が接続している点のうち
-						const auto offset = A.index1_data()[j];
-						const auto count = A.index1_data()[j + 1] - offset;
-						for(auto idx = decltype(count)(0); idx < count; idx++)
+						// 候補点をブロックに入れる
+						block[j] = blockCount;
+						countPerBlock[blockCount]++;
+
+						// まだこのブロックに空きがあれば
+						if(countPerBlock[blockCount] < MAX_COUNT_PER_BLOCK)
 						{
-							const auto k = A.index2_data()[offset + idx];
-							// まだブロックに割り当てられていない点を
-							// （自分自身は除く）
-							if((j != k) && (block[k] == INVALID_BLOCK))
+							// ブロックに入れた点が接続している点のうち
+							const auto offset = A.index1_data()[j];
+							const auto count = A.index1_data()[j + 1] - offset;
+							for(auto idx = decltype(count)(0); idx < count; idx++)
 							{
-								// このブロックに入れる候補点にする
-								candidate.push(k);
+								const auto k = A.index2_data()[offset + idx];
+								// まだブロックに割り当てられていない点を
+								// （自分自身は除く）
+								if((j != k) && (block[k] == INVALID_BLOCK))
+								{
+									// このブロックに入れる候補点にする
+									candidate.push(k);
+								}
 							}
 						}
 					}
@@ -343,7 +347,7 @@ static void AlgebraicBlockMultiColoring(const Matrix& A)
 		}
 	}
 	blockCount--; // ブロック数
-	
+
 	// ブロック間の接続行列を生成
 	Matrix M(blockCount, blockCount);
 	for(auto i = decltype(N)(0); i < N; i++)
