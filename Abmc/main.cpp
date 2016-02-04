@@ -100,7 +100,7 @@ int main()
 				{
 					const auto q = ii*n + jj;
 
-					const auto value = (p == q) ? 9 : -1;
+					const auto value = (p == q) ? 8 : -1;
 					A(p, q) = value;
 				}
 			}
@@ -124,6 +124,7 @@ int main()
 	b = boost::numeric::ublas::prod(A, expect);
 
 	GaussSeidel(A, b, expect);
+	SymmetryGaussSeidel(A, b, expect);
 
 #ifndef ENABLE_ROW_DATA
 	//GeometicMultiColoring(A);
