@@ -96,7 +96,7 @@ static void CreateRow(Index row[], Index offset[], const Index color[])
 		return p.second;
 	});
 
-	// 各色の数を計算
+	// 各色の先頭番号を計算
 	{
 		offset[0] = 0;
 		for(auto i = decltype(N)(1); i < N; i++)
@@ -202,7 +202,7 @@ static void AlgebraicMultiColoring(const Matrix& A, const Vector& b, const Vecto
 }
 
 // ブロック化多色順序付けの行番号配列を生成
-static void CreateRow(Index row[], const Index color[], const Block block[])
+static void CreateRow(Index row[], Index offset[], Block blockOffset[], const Index color[], const Block block[])
 {
 	// 色番号の小さい順に並び替え
 	// ・同じ色の場合はブロック番号の小さい順
@@ -241,10 +241,49 @@ static void CreateRow(Index row[], const Index color[], const Block block[])
 	{
 		return std::get<2>(d);
 	});
+
+	// 各ブロックの先頭番号
+	{
+		offset[0] = 0;
+		auto blockCount = Block(1);
+		for(auto i = decltype(N)(1); i < N; i++)
+		{
+			const auto prevBlock = std::get<1>(data[i - 1]);
+			const auto thisBlock = std::get<1>(data[i]);
+			if(prevBlock != thisBlock)
+			{
+				offset[blockCount] = i;
+				blockCount++;
+			}
+		}
+		offset[blockCount] = N;
+	}
+
+	// 各色のブロック番号
+	{
+		blockOffset[0] = 0;
+		const auto blockCount = block[N - 1];
+		for(auto b = Block(1); b < blockCount; b++)
+		{
+			const auto prevI = offset[b - 1];
+			const auto thisI = offset[b];
+			const auto prevBlockFirst = row[prevI];
+			const auto thisBlockFirst = row[thisI];
+			const auto prevColor = color[prevBlockFirst] - 1;
+			const auto thisColor = color[thisBlockFirst] - 1;
+			
+			if(prevColor != thisColor)
+			{
+				blockOffset[thisColor] = b;
+			}
+		}
+		const auto colorCount = color[N - 1];
+		blockOffset[colorCount] = blockCount;
+	}
 }
 
 // 幾何形状を用いたブロック化多色順序付け
-static void GeometicBlockMultiColoring(const Matrix& A)
+static void GeometicBlockMultiColoring(const Matrix& A, const Vector& b, const Vector& expect)
 {
 	auto color = std::make_unique<Color[]>(N);
 	auto block = std::make_unique<Block[]>(N);
@@ -257,7 +296,7 @@ static void GeometicBlockMultiColoring(const Matrix& A)
 
 			const auto blockI = i / BLOCK_SIZE;
 			const auto blockJ = j / BLOCK_SIZE;
-			block[idx] = blockI*n / BLOCK_SIZE + blockJ;
+			block[idx] = blockI*n / BLOCK_SIZE + blockJ + 1;
 
 			const auto isEvenRow = blockI % 2 == 0;
 			const auto isEvenColumn = blockJ % 2 == 0;
@@ -271,16 +310,22 @@ static void GeometicBlockMultiColoring(const Matrix& A)
 					Color(4));  // 奇数業の奇数列
 		}
 	}
+	const auto blockCountPerLine = static_cast<Block>(std::ceil(n / BLOCK_SIZE));
+	const auto blockCount = blockCountPerLine*blockCountPerLine;
+	const auto colorCount = 4;
 
 	// 並び替え後の行番号→元の行番号の変換表
 	auto row = std::make_unique<Index[]>(N);
-	CreateRow(row.get(), color.get(), block.get());
+	auto offset = std::make_unique<Index[]>(blockCount + 1);
+	auto blockOffset = std::make_unique<Block[]>(colorCount + 1);
+	CreateRow(row.get(), offset.get(), blockOffset.get(), color.get(), block.get());
 
 	OutputResult("幾何的ブロック化多色順序付け", A, row.get(), color.get());
+	SymmetryGaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 }
 
 // 幾何形状を用いない多色順序付け
-static void AlgebraicBlockMultiColoring(const Matrix& A)
+static void AlgebraicBlockMultiColoring(const Matrix& A, const Vector& b, const Vector& expect)
 {
 	constexpr auto INVALID_BLOCK = Block(0);
 	auto block = std::make_unique<Block[]>(N);
@@ -389,13 +434,16 @@ static void AlgebraicBlockMultiColoring(const Matrix& A)
 		const auto c = colorBlock[b - 1];
 		color[i] = c;
 	}
-
+	const auto colorCount = *std::max_element(colorBlock.begin(), colorBlock.end());
 
 	// 並び替え後の行番号→元の行番号の変換表
 	auto row = std::make_unique<Index[]>(N);
-	CreateRow(row.get(), color.get(), block.get());
+	auto offset = std::make_unique<Index[]>(blockCount + 1);
+	auto blockOffset = std::make_unique<Block[]>(colorCount + 1);
+	CreateRow(row.get(), offset.get(), blockOffset.get(), color.get(), block.get());
 
 	OutputResult("代数的ブロック化多色順序付け", A, row.get(), color.get());
+	SymmetryGaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 }
 
 #endif

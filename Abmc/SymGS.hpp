@@ -85,7 +85,8 @@ static void SymmetryGaussSeidel(const Matrix& A, const Vector& b, const Vector& 
 // 多色順序付けの対称ガウスザイデル法
 static void SymmetryGaussSeidel(const Matrix& A, const Vector& b, const Vector& expect,
 	const Index row[],
-	const Index offset[], const Color colorCount)
+	const Index offset[],
+	const Color colorCount)
 {
 	Solve("対称ガウスザイデル法", expect, [&A, &b, &row, &offset, colorCount](Vector& x)
 	{
@@ -102,10 +103,50 @@ static void SymmetryGaussSeidel(const Matrix& A, const Vector& b, const Vector& 
 		// 逆順
 		for(auto color = static_cast<std::make_signed_t<decltype(colorCount)>>(colorCount - 1); color >= 0; color--)
 		{
-			for(auto idx = offset[color]; idx < offset[color + 1]; idx++) // 同じ色の中では依存関係はないのでここは逆順にする必要がない
+			for(auto idx = offset[color]; idx < offset[color + 1]; idx++) // 同じ色の中では点間の依存関係はないのでここは逆順にする必要がない
 			{
 				const auto i = row[idx];
 				GaussSeidelMain(x, A, b, i);
+			}
+		}
+	});
+}
+
+// ブロック化多色順序付けの対称ガウスザイデル法
+static void SymmetryGaussSeidel(const Matrix& A, const Vector& b, const Vector& expect,
+	const Index row[],
+	const Block blockOffset[],
+	const Index offset[],
+	const Color colorCount)
+{
+	Solve("対称ガウスザイデル法", expect, [&A, &b, &row, &blockOffset, &offset, colorCount](Vector& x)
+	{
+		// 順
+		for(auto color = decltype(colorCount)(0); color < colorCount; color++)
+		{
+			for(auto block = blockOffset[color]; block < blockOffset[color + 1]; block++)
+			{
+				for(auto idx = offset[block]; idx < offset[block + 1]; idx++)
+				{
+					const auto i = row[idx];
+					GaussSeidelMain(x, A, b, i);
+				}
+			}
+		}
+
+		// 逆順
+		for(auto color = static_cast<std::make_signed_t<decltype(colorCount)>>(colorCount - 1); color >= 0; color--)
+		{
+			for(auto block = blockOffset[color]; block < blockOffset[color + 1]; block++) // 同じ色の中ではブロック間に依存関係はないのでここは逆順にする必要がない
+			{
+				using SignedIndex = std::make_signed_t<decltype(offset[0])>;
+				const auto first = static_cast<SignedIndex>(offset[block + 1]) - 1;
+				const auto last = static_cast<SignedIndex>(offset[block]);
+				for(auto idx = first; idx >= last; idx--)
+				{
+					const auto i = row[idx];
+					GaussSeidelMain(x, A, b, i);
+				}
 			}
 		}
 	});

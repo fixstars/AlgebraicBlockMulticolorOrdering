@@ -131,9 +131,9 @@ int main()
 #endif
 	AlgebraicMultiColoring(A, b, expect);
 #ifndef ENABLE_ROW_DATA
-	//GeometicBlockMultiColoring(A);
+	GeometicBlockMultiColoring(A, b, expect);
 #endif
-	//AlgebraicBlockMultiColoring(A);
+	AlgebraicBlockMultiColoring(A, b, expect);
 
 	system("pause");
 	return 0;
