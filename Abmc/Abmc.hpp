@@ -5,6 +5,7 @@
 #include <queue>
 
 #include "common.hpp"
+#include "SymGS.hpp"
 
 static constexpr std::size_t MAX_COLOR_COUNT = 27;
 static constexpr std::size_t BLOCK_SIZE = 2; // 2x2にブロック化
@@ -75,7 +76,7 @@ static void OutputResult(const std::string name, const Matrix& A, const Index ro
 }
 
 // （非ブロック化）多色順序付けの行番号配列を生成
-static void CreateRow(Index row[], const Index color[])
+static void CreateRow(Index row[], Index offset[], const Index color[])
 {
 	// 色番号の小さい順に並び替え（同じ色の場合は行番号の小さい順）
 	auto pair = std::make_unique<std::pair<Color, Index>[]>(N);
@@ -94,10 +95,27 @@ static void CreateRow(Index row[], const Index color[])
 	{
 		return p.second;
 	});
+
+	// 各色の数を計算
+	{
+		offset[0] = 0;
+		for(auto i = decltype(N)(1); i < N; i++)
+		{
+			const auto prevColor = color[row[i - 1]] - 1;
+			const auto thisColor = color[row[i]] - 1;
+
+			if(prevColor != thisColor)
+			{
+				offset[thisColor] = i;
+			}
+		}
+		const auto lastColor = color[N - 1];
+		offset[lastColor] = N;
+	}
 }
 
 // 幾何形状を用いた多色順序付け
-static void GeometicMultiColoring(const Matrix& A)
+static void GeometicMultiColoring(const Matrix& A, const Vector& b, const Vector& expect)
 {
 	auto color = std::make_unique<Color[]>(N);
 
@@ -119,12 +137,14 @@ static void GeometicMultiColoring(const Matrix& A)
 					Color(4));  // 奇数業の奇数列
 		}
 	}
+	const auto colorCount = Color(4);
 
-	// 並び替え後の行番号→元の行番号の変換表
-	auto row = std::make_unique<Index[]>(N);
-	CreateRow(row.get(), color.get());
+	auto row = std::make_unique<Index[]>(N); // 並び替え後の行番号→元の行番号の変換表
+	auto offset = std::make_unique<Index[]>(colorCount + 1); // 各色の開始番号
+	CreateRow(row.get(), offset.get(), color.get());
 
 	OutputResult("幾何的多色順序付け", A, row.get(), color.get());
+	SymmetryGaussSeidel(A, b, expect, row.get(), offset.get(), colorCount);
 }
 
 static decltype(auto) AlgebraicMultiColoringMain(const Matrix& A)
@@ -168,18 +188,20 @@ static decltype(auto) AlgebraicMultiColoringMain(const Matrix& A)
 }
 
 // 幾何形状を用いない多色順序付け
-static void AlgebraicMultiColoring(const Matrix& A)
+static void AlgebraicMultiColoring(const Matrix& A, const Vector& b, const Vector& expect)
 {
 	const auto&& color = AlgebraicMultiColoringMain(A);
+	const auto colorCount = color.size();
 
-	// 並び替え後の行番号→元の行番号の変換表
-	auto row = std::make_unique<Index[]>(N);
-	CreateRow(row.get(), color.data());
+	auto row = std::make_unique<Index[]>(N); // 並び替え後の行番号→元の行番号の変換表
+	auto offset = std::make_unique<Index[]>(colorCount + 1); // 各色の開始番号
+	CreateRow(row.get(), offset.get(), color.data());
 
 	OutputResult("代数的多色順序付け", A, row.get(), color.data());
+	SymmetryGaussSeidel(A, b, expect, row.get(), offset.get(), colorCount);
 }
 
-// （非ブロック化）多色順序付けの行番号配列を生成
+// ブロック化多色順序付けの行番号配列を生成
 static void CreateRow(Index row[], const Index color[], const Block block[])
 {
 	// 色番号の小さい順に並び替え

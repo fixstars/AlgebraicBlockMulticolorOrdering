@@ -127,9 +127,9 @@ int main()
 	SymmetryGaussSeidel(A, b, expect);
 
 #ifndef ENABLE_ROW_DATA
-	//GeometicMultiColoring(A);
+	GeometicMultiColoring(A, b, expect);
 #endif
-	//AlgebraicMultiColoring(A);
+	AlgebraicMultiColoring(A, b, expect);
 #ifndef ENABLE_ROW_DATA
 	//GeometicBlockMultiColoring(A);
 #endif
