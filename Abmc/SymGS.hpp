@@ -29,10 +29,10 @@ static void GaussSeidelMain(Vector& x, const Matrix& A, const Vector& b, const s
 	x(i) = x_i / a_ii;
 }
 
-// 普通のガウスザイデル法
-static void GaussSeidel(const Matrix& A, const Vector& b, const Vector& expect)
+template<typename SolveFunction>
+static void Solve(const std::string name, const Vector& expect, SolveFunction solve)
 {
-	std::cout << "ガウスザイデル法" << std::endl;
+	std::cout << name << std::endl;
 	Vector x(N);
 	std::fill_n(x.begin(), N, 0);
 	// 初期残差
@@ -42,31 +42,31 @@ static void GaussSeidel(const Matrix& A, const Vector& b, const Vector& expect)
 		std::cout << 0 << ", " << rr << std::endl;
 	}
 	for(auto iteration = decltype(N)(0); iteration < N; iteration++)
+	{
+		solve(x);
+
+		const auto r = expect - x;
+		const auto rr = boost::numeric::ublas::inner_prod(r, r);
+		std::cout << iteration + 1 << ", " << rr << std::endl;
+	}
+}
+
+// 普通のガウスザイデル法
+static void GaussSeidel(const Matrix& A, const Vector& b, const Vector& expect)
+{
+	Solve("ガウスザイデル法", expect, [&A, &b](Vector& x)
 	{
 		for(auto i = decltype(N)(0); i < N; i++)
 		{
 			GaussSeidelMain(x, A, b, i);
 		}
-
-		const auto r = expect - x;
-		const auto rr = boost::numeric::ublas::inner_prod(r, r);
-		std::cout << iteration+1 << ", " << rr << std::endl;
-	}
+	});
 }
 
 // 対称ガウスザイデル法
 static void SymmetryGaussSeidel(const Matrix& A, const Vector& b, const Vector& expect)
 {
-	std::cout << "対称ガウスザイデル法" << std::endl;
-	Vector x(N);
-	std::fill_n(x.begin(), N, 0);
-	// 初期残差
-	{
-		const auto r = expect - x;
-		const auto rr = boost::numeric::ublas::inner_prod(r, r);
-		std::cout << 0 << ", " << rr << std::endl;
-	}
-	for(auto iteration = decltype(N)(0); iteration < N; iteration++)
+	Solve("対称ガウスザイデル法", expect, [&A, &b](Vector& x)
 	{
 		// 順
 		for(auto i = decltype(N)(0); i < N; i++)
@@ -79,11 +79,7 @@ static void SymmetryGaussSeidel(const Matrix& A, const Vector& b, const Vector& 
 		{
 			GaussSeidelMain(x, A, b, i);
 		}
-
-		const auto r = expect - x;
-		const auto rr = boost::numeric::ublas::inner_prod(r, r);
-		std::cout << iteration + 1 << ", " << rr << std::endl;
-	}
+	});
 }
 
 #endif
