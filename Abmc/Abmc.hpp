@@ -243,9 +243,9 @@ static void CreateRow(Index row[], Index offset[], Block blockOffset[], const In
 	});
 
 	// 各ブロックの先頭番号
+	auto blockCount = Block(1);
 	{
 		offset[0] = 0;
-		auto blockCount = Block(1);
 		for(auto i = decltype(N)(1); i < N; i++)
 		{
 			const auto prevBlock = std::get<1>(data[i - 1]);
@@ -262,7 +262,7 @@ static void CreateRow(Index row[], Index offset[], Block blockOffset[], const In
 	// 各色のブロック番号
 	{
 		blockOffset[0] = 0;
-		const auto blockCount = block[N - 1];
+		auto colorCount = Color(1);
 		for(auto b = Block(1); b < blockCount; b++)
 		{
 			const auto prevI = offset[b - 1];
@@ -271,13 +271,14 @@ static void CreateRow(Index row[], Index offset[], Block blockOffset[], const In
 			const auto thisBlockFirst = row[thisI];
 			const auto prevColor = color[prevBlockFirst] - 1;
 			const auto thisColor = color[thisBlockFirst] - 1;
-			
+
 			if(prevColor != thisColor)
 			{
 				blockOffset[thisColor] = b;
 			}
+			colorCount = std::max(colorCount, thisColor);
 		}
-		const auto colorCount = color[N - 1];
+		colorCount++;
 		blockOffset[colorCount] = blockCount;
 	}
 }
@@ -310,7 +311,7 @@ static void GeometicBlockMultiColoring(const Matrix& A, const Vector& b, const V
 					Color(4));  // 奇数業の奇数列
 		}
 	}
-	const auto blockCountPerLine = static_cast<Block>(std::ceil(n / BLOCK_SIZE));
+	const auto blockCountPerLine = static_cast<Block>(std::ceil(static_cast<double>(n) / BLOCK_SIZE));
 	const auto blockCount = blockCountPerLine*blockCountPerLine;
 	const auto colorCount = 4;
 
