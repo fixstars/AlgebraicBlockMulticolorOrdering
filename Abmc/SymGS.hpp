@@ -4,7 +4,32 @@
 
 #include "common.hpp"
 
-static void GaussSeidelMain(Vector& x, const Matrix& A, const Vector& b, const std::size_t i)
+static void JacobiMain(Vector& x, const Matrix& A, const Vector& b, const Vector& x_old, const std::size_t i)
+{
+	auto x_i = b(i);
+
+	const auto offset = A.index1_data()[i];
+	const auto count = A.index1_data()[i + 1] - offset;
+	double a_ii;
+	for(auto idx = decltype(count)(0); idx < count; idx++)
+	{
+		const auto j = A.index2_data()[offset + idx];
+		const double a_ij = A.value_data()[offset + idx];
+
+		if(j == i)
+		{
+			a_ii = a_ij;
+		}
+		else
+		{
+			const double x_j = x_old[j];
+			x_i -= a_ij * x_j;
+		}
+	}
+	x(i) = x_i / a_ii;
+}
+
+static void GaussSeidelMain(Vector& x, const Matrix& A, const Vector& b,const std::size_t i)
 {
 	auto x_i = b(i);
 
@@ -49,6 +74,20 @@ static void Solve(const std::string name, const Vector& expect, SolveFunction so
 		const auto rr = boost::numeric::ublas::inner_prod(r, r);
 		std::cout << iteration + 1 << ", " << rr << std::endl;
 	}
+}
+
+// 普通のヤコビ法
+static void Jacobi(const Matrix& A, const Vector& b, const Vector& expect)
+{
+	Vector x_old(b.size());
+	Solve("ヤコビ法", expect, [&A, &b, &x_old](Vector& x)
+	{
+		std::copy(x.cbegin(), x.cend(), x_old.begin());
+		for(auto i = decltype(N)(0); i < N; i++)
+		{
+			JacobiMain(x, A, b, x_old, i);
+		}
+	});
 }
 
 // 普通のガウスザイデル法

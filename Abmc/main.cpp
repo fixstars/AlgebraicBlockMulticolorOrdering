@@ -123,6 +123,7 @@ int main()
 	std::fill_n(expect.begin(), N, 100.1);
 	b = boost::numeric::ublas::prod(A, expect);
 
+	Jacobi(A, b, expect);
 	GaussSeidel(A, b, expect);
 	SymmetryGaussSeidel(A, b, expect);
 
