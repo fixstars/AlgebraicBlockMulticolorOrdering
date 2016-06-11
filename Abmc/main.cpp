@@ -40,16 +40,16 @@ int main()
 	std::fill_n(expect.begin(), N, 100.1);
 	b = boost::numeric::ublas::prod(A, expect);
 
-	Jacobi(A, b, expect);
-	GaussSeidel(A, b, expect);
-	GaussSeidel2(A, b, expect);
-	SymmetryGaussSeidel(A, b, expect);
+	Jacobi(A, b, expect); std::cout << "####################################" << std::endl;
+	GaussSeidel(A, b, expect); std::cout << "####################################" << std::endl;
+	GaussSeidel2(A, b, expect); std::cout << "####################################" << std::endl;
+	SymmetryGaussSeidel(A, b, expect); std::cout << "####################################" << std::endl;
 
-	GeometicMultiColoring(A, b, expect);
-	AlgebraicMultiColoring(A, b, expect);
+	GeometicMultiColoring(A, b, expect); std::cout << "####################################" << std::endl;
+	AlgebraicMultiColoring(A, b, expect); std::cout << "####################################" << std::endl;
 
-	GeometicBlockMultiColoring(A, b, expect);
-	AlgebraicBlockMultiColoring(A, b, expect);
+	GeometicBlockMultiColoring(A, b, expect); std::cout << "####################################" << std::endl;
+	AlgebraicBlockMultiColoring(A, b, expect); std::cout << "####################################" << std::endl;
 
 	return 0;
 }

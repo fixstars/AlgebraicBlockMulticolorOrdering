@@ -133,6 +133,7 @@ static void GeometicMultiColoring(const Matrix& A, const Vector& b, const Vector
 	CreateRow(row.get(), offset.get(), color.get());
 
 	OutputResult("幾何的多色順序付け", A, row.get(), color.get());
+	GaussSeidel(A, b, expect, row.get(), offset.get(), colorCount);
 	SymmetryGaussSeidel(A, b, expect, row.get(), offset.get(), colorCount);
 }
 
@@ -187,6 +188,7 @@ static void AlgebraicMultiColoring(const Matrix& A, const Vector& b, const Vecto
 	CreateRow(row.get(), offset.get(), color.data());
 
 	OutputResult("代数的多色順序付け", A, row.get(), color.data());
+	GaussSeidel(A, b, expect, row.get(), offset.get(), colorCount);
 	SymmetryGaussSeidel(A, b, expect, row.get(), offset.get(), colorCount);
 }
 
@@ -311,6 +313,7 @@ static void GeometicBlockMultiColoring(const Matrix& A, const Vector& b, const V
 	CreateRow(row.get(), offset.get(), blockOffset.get(), color.get(), block.get());
 
 	OutputResult("幾何的ブロック化多色順序付け", A, row.get(), color.get());
+	GaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 	SymmetryGaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 }
 
@@ -433,6 +436,7 @@ static void AlgebraicBlockMultiColoring(const Matrix& A, const Vector& b, const 
 	CreateRow(row.get(), offset.get(), blockOffset.get(), color.get(), block.get());
 
 	OutputResult("代数的ブロック化多色順序付け", A, row.get(), color.get());
+	GaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 	SymmetryGaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 }
 

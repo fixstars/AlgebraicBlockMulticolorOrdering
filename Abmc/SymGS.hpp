@@ -57,7 +57,8 @@ static void GaussSeidelMain(Vector& x, const Matrix& A, const Vector& b,const st
 template<typename SolveFunction>
 static void Solve(const std::string name, const Vector& expect, SolveFunction solve)
 {
-	std::cout << "	" << name << std::endl;
+	std::cout << "+++++++++++++++++++++" << std::endl;
+	std::cout << name << std::endl;
 	Vector x(N);
 	std::fill_n(x.begin(), N, 0);
 	// 初期残差
@@ -74,7 +75,6 @@ static void Solve(const std::string name, const Vector& expect, SolveFunction so
 		const auto rr = boost::numeric::ublas::inner_prod(r, r);
 		std::cout << iteration + 1 << ", " << rr << std::endl;
 	}
-	std::cout << "####################################" << std::endl;
 }
 
 // 普通のヤコビ法
@@ -91,7 +91,7 @@ static void Jacobi(const Matrix& A, const Vector& b, const Vector& expect)
 	});
 }
 
-// 普通のガウスザイデル法
+// ガウスザイデル法
 static void GaussSeidel(const Matrix& A, const Vector& b, const Vector& expect)
 {
 	Solve("ガウスザイデル法", expect, [&A, &b](Vector& x)
@@ -115,6 +115,49 @@ static void GaussSeidel2(const Matrix& A, const Vector& b, const Vector& expect)
 		for(auto i = decltype(N)(0); i < N; i++)
 		{
 			GaussSeidelMain(x, A, b, i);
+		}
+	});
+}
+
+// 多色順序付けのガウスザイデル法
+static void GaussSeidel(const Matrix& A, const Vector& b, const Vector& expect,
+	const Index row[],
+	const Index offset[],
+	const Color colorCount)
+{
+	Solve("多色順序付けガウスザイデル法", expect, [&A, &b, &row, &offset, colorCount](Vector& x)
+	{
+		for (auto color = decltype(colorCount)(0); color < colorCount; color++)
+		{
+			for (auto idx = offset[color]; idx < offset[color + 1]; idx++)
+			{
+				const auto i = row[idx];
+				GaussSeidelMain(x, A, b, i);
+			}
+		}
+	});
+}
+
+// ブロック化多色順序付けのガウスザイデル法
+static void GaussSeidel(const Matrix& A, const Vector& b, const Vector& expect,
+	const Index row[],
+	const Block blockOffset[],
+	const Index offset[],
+	const Color colorCount)
+{
+	Solve("ブロック化多色順序付けガウスザイデル法", expect, [&A, &b, &row, &blockOffset, &offset, colorCount](Vector& x)
+	{
+		// 順
+		for (auto color = decltype(colorCount)(0); color < colorCount; color++)
+		{
+			for (auto block = blockOffset[color]; block < blockOffset[color + 1]; block++)
+			{
+				for (auto idx = offset[block]; idx < offset[block + 1]; idx++)
+				{
+					const auto i = row[idx];
+					GaussSeidelMain(x, A, b, i);
+				}
+			}
 		}
 	});
 }
