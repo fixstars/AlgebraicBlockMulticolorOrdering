@@ -62,17 +62,6 @@ static void OutputResult(const std::string name, const Matrix& A, const Index ro
 		}
 		std::cout << std::endl;
 	}
-
-#ifndef ENABLE_ROW_DATA
-	for(auto i = decltype(n)(0); i < n; i++)
-	{
-		for(auto j = decltype(n)(0); j < n; j++)
-		{
-			std::cout << color[i*n + j] << ", ";
-		}
-		std::cout << std::endl;
-	}
-#endif
 }
 
 // （非ブロック化）多色順序付けの行番号配列を生成
