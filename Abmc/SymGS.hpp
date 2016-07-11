@@ -74,6 +74,7 @@ static void Solve(const std::string name, const Vector& expect, SolveFunction so
 		const auto rr = boost::numeric::ublas::inner_prod(r, r);
 		std::cout << iteration + 1 << ", " << rr << std::endl;
 	}
+	std::cout << "####################################" << std::endl;
 }
 
 // 普通のヤコビ法

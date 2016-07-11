@@ -33,6 +33,7 @@ int main()
 		}
 		std::cout << std::endl;
 	}
+	std::cout << "####################################" << std::endl;
 
 	Vector b(N);
 	Vector expect(N);
@@ -50,6 +51,5 @@ int main()
 	GeometicBlockMultiColoring(A, b, expect);
 	AlgebraicBlockMultiColoring(A, b, expect);
 
-	system("pause");
 	return 0;
 }
