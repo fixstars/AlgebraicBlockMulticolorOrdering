@@ -41,6 +41,7 @@ int main()
 
 	Jacobi(A, b, expect);
 	GaussSeidel(A, b, expect);
+	GaussSeidel2(A, b, expect);
 	SymmetryGaussSeidel(A, b, expect);
 
 	GeometicMultiColoring(A, b, expect);

@@ -102,6 +102,22 @@ static void GaussSeidel(const Matrix& A, const Vector& b, const Vector& expect)
 	});
 }
 
+// 普通のガウスザイデル法を2回
+static void GaussSeidel2(const Matrix& A, const Vector& b, const Vector& expect)
+{
+	Solve("ガウスザイデル法x2", expect, [&A, &b](Vector& x)
+	{
+		for(auto i = decltype(N)(0); i < N; i++)
+		{
+			GaussSeidelMain(x, A, b, i);
+		}
+		for(auto i = decltype(N)(0); i < N; i++)
+		{
+			GaussSeidelMain(x, A, b, i);
+		}
+	});
+}
+
 // 対称ガウスザイデル法
 static void SymmetryGaussSeidel(const Matrix& A, const Vector& b, const Vector& expect)
 {
@@ -127,7 +143,7 @@ static void SymmetryGaussSeidel(const Matrix& A, const Vector& b, const Vector& 
 	const Index offset[],
 	const Color colorCount)
 {
-	Solve("対称ガウスザイデル法", expect, [&A, &b, &row, &offset, colorCount](Vector& x)
+	Solve("多色順序付け対称ガウスザイデル法", expect, [&A, &b, &row, &offset, colorCount](Vector& x)
 	{
 		// 順
 		for(auto color = decltype(colorCount)(0); color < colorCount; color++)
@@ -158,7 +174,7 @@ static void SymmetryGaussSeidel(const Matrix& A, const Vector& b, const Vector& 
 	const Index offset[],
 	const Color colorCount)
 {
-	Solve("対称ガウスザイデル法", expect, [&A, &b, &row, &blockOffset, &offset, colorCount](Vector& x)
+	Solve("ブロック化多色順序付け対称ガウスザイデル法", expect, [&A, &b, &row, &blockOffset, &offset, colorCount](Vector& x)
 	{
 		// 順
 		for(auto color = decltype(colorCount)(0); color < colorCount; color++)
