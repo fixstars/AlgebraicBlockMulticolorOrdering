@@ -3,12 +3,12 @@
 #include <iostream>
 #include <algorithm>
 #include <queue>
+#include "boost/format.hpp"
 
 #include "common.hpp"
 #include "SymGS.hpp"
 
 static constexpr std::size_t MAX_COLOR_COUNT = 27;
-static constexpr std::size_t BLOCK_SIZE = 2; // 2x2にブロック化
 
 static void OutputResult(const std::string name, const Matrix& A, const Index row[], const Color color[])
 {
@@ -275,6 +275,7 @@ static void CreateRow(Index row[], Index offset[], Block blockOffset[], const In
 }
 
 // 幾何形状を用いたブロック化多色順序付け
+template<std::size_t BLOCK_SIZE>
 static void GeometicBlockMultiColoring(const Matrix& A, const Vector& b, const Vector& expect)
 {
 	auto color = std::make_unique<Color[]>(N);
@@ -312,12 +313,13 @@ static void GeometicBlockMultiColoring(const Matrix& A, const Vector& b, const V
 	auto blockOffset = std::make_unique<Block[]>(colorCount + 1);
 	CreateRow(row.get(), offset.get(), blockOffset.get(), color.get(), block.get());
 
-	OutputResult("幾何的ブロック化多色順序付け", A, row.get(), color.get());
+	OutputResult((boost::format("幾何的ブロック化多色順序付け(%1%x%1%)") % BLOCK_SIZE).str(), A, row.get(), color.get());
 	GaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 	SymmetryGaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 }
 
 // 幾何形状を用いない多色順序付け
+template<std::size_t BLOCK_SIZE>
 static void AlgebraicBlockMultiColoring(const Matrix& A, const Vector& b, const Vector& expect)
 {
 	constexpr auto INVALID_BLOCK = Block(0);
@@ -435,7 +437,7 @@ static void AlgebraicBlockMultiColoring(const Matrix& A, const Vector& b, const 
 	auto blockOffset = std::make_unique<Block[]>(colorCount + 1);
 	CreateRow(row.get(), offset.get(), blockOffset.get(), color.get(), block.get());
 
-	OutputResult("代数的ブロック化多色順序付け", A, row.get(), color.get());
+	OutputResult((boost::format("代数的ブロック化多色順序付け(%1%x%1%)") % BLOCK_SIZE).str(), A, row.get(), color.get());
 	GaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 	SymmetryGaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 }

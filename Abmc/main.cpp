@@ -40,16 +40,23 @@ int main()
 	std::fill_n(expect.begin(), N, 100.1);
 	b = boost::numeric::ublas::prod(A, expect);
 
+	// 逐次
 	Jacobi(A, b, expect); std::cout << "####################################" << std::endl;
 	GaussSeidel(A, b, expect); std::cout << "####################################" << std::endl;
 	GaussSeidel2(A, b, expect); std::cout << "####################################" << std::endl;
 	SymmetryGaussSeidel(A, b, expect); std::cout << "####################################" << std::endl;
 
+	// 多色順序順序付け
 	GeometicMultiColoring(A, b, expect); std::cout << "####################################" << std::endl;
 	AlgebraicMultiColoring(A, b, expect); std::cout << "####################################" << std::endl;
 
-	GeometicBlockMultiColoring(A, b, expect); std::cout << "####################################" << std::endl;
-	AlgebraicBlockMultiColoring(A, b, expect); std::cout << "####################################" << std::endl;
+	// 2x2にブロック化
+	GeometicBlockMultiColoring<2>(A, b, expect); std::cout << "####################################" << std::endl;
+	AlgebraicBlockMultiColoring<2>(A, b, expect); std::cout << "####################################" << std::endl;
+
+	// 4x4にブロック化
+	GeometicBlockMultiColoring<4>(A, b, expect); std::cout << "####################################" << std::endl;
+	AlgebraicBlockMultiColoring<4>(A, b, expect); std::cout << "####################################" << std::endl;
 
 	return 0;
 }
