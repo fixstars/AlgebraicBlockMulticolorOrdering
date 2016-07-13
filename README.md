@@ -1,6 +1,8 @@
 # ABMC
 project to learn Algebraic Block Multicolor Ordering
 
+See [the blog post](http://proc-cpuinfo.fixstars.com/2016/07/blog-post.html) (in Japanese) for more detail.
+
 ## License
 
 This project is multi-licensed.
