@@ -525,19 +525,15 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 	while (true)
 	{
 		// 探索済みではない次数が最小となるindexの探索
-		auto minDegreeIndex = N + 1;
-		for (auto i = decltype(N)(0); i < N; i++)
+		auto minDegreeIndexItr = std::find_if(degreeIndex.get(), degreeIndex.get() + N, [&level, &INVALID_LEVEL](const auto& degIndex)
 		{
-			const auto index = degreeIndex[i].second;
-			if (level[index] == INVALID_LEVEL)
-			{
-				minDegreeIndex = index;
-				break;
-			}
-		}
+			return level[degIndex.second] == INVALID_LEVEL;
+		});
 
 		// すべての点を探索し終えたら終了
-		if (minDegreeIndex == N + 1) break;
+		if (minDegreeIndexItr == degreeIndex.get() + N) break;
+
+		auto minDegreeIndex = minDegreeIndexItr->second;
 
 		std::queue<Level> que;
 		que.push(minDegreeIndex);
