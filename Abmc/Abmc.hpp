@@ -504,6 +504,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 {
 	constexpr auto INVALID_LEVEL = Level(0);
 	auto level = std::make_unique<Level[]>(N);
+	std::fill(level.get(), level.get() + N, INVALID_LEVEL);
 	auto degreeIndex = std::make_unique<std::pair<Index, Index>[]>(N); // degree, index
 	auto degree = std::make_unique<Index[]>(N);
 
