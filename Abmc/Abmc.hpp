@@ -10,7 +10,7 @@
 
 static constexpr std::size_t MAX_COLOR_COUNT = 27;
 
-static void OutputResult(const std::string name, const Matrix& A, const Index row[], const Color color[])
+static void OutputResult(const std::string name, const Matrix& A, const Index row[])
 {
 	// 元の行番号→並び替え後の行番号の変換表
 	auto lut = std::make_unique<Index[]>(N);
@@ -42,7 +42,6 @@ static void OutputResult(const std::string name, const Matrix& A, const Index ro
 		const auto offset = A.index1_data()[r];
 		const auto count = A.index1_data()[r + 1] - offset;
 
-		// 接続している点に使われている色を洗い出す
 		for(auto idx = decltype(count)(0); idx < count; idx++)
 		{
 			const auto j = A.index2_data()[offset + idx];
@@ -132,7 +131,7 @@ static void GeometicMultiColoring(const Matrix& A, const Vector& b, const Vector
 	auto offset = std::make_unique<Index[]>(colorCount + 1); // 各色の開始番号
 	CreateRow(row.get(), offset.get(), color.get());
 
-	OutputResult("幾何的多色順序付け", A, row.get(), color.get());
+	OutputResult("幾何的多色順序付け", A, row.get());
 	GaussSeidel(A, b, expect, row.get(), offset.get(), colorCount);
 	SymmetryGaussSeidel(A, b, expect, row.get(), offset.get(), colorCount);
 }
@@ -187,7 +186,7 @@ static void AlgebraicMultiColoring(const Matrix& A, const Vector& b, const Vecto
 	auto offset = std::make_unique<Index[]>(colorCount + 1); // 各色の開始番号
 	CreateRow(row.get(), offset.get(), color.data());
 
-	OutputResult("代数的多色順序付け", A, row.get(), color.data());
+	OutputResult("代数的多色順序付け", A, row.get());
 	GaussSeidel(A, b, expect, row.get(), offset.get(), colorCount);
 	SymmetryGaussSeidel(A, b, expect, row.get(), offset.get(), colorCount);
 }
@@ -313,7 +312,7 @@ static void GeometicBlockMultiColoring(const Matrix& A, const Vector& b, const V
 	auto blockOffset = std::make_unique<Block[]>(colorCount + 1);
 	CreateRow(row.get(), offset.get(), blockOffset.get(), color.get(), block.get());
 
-	OutputResult((boost::format("幾何的ブロック化多色順序付け(%1%x%1%)") % BLOCK_SIZE).str(), A, row.get(), color.get());
+	OutputResult((boost::format("幾何的ブロック化多色順序付け(%1%x%1%)") % BLOCK_SIZE).str(), A, row.get());
 	GaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 	SymmetryGaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 }
@@ -437,7 +436,7 @@ static void AlgebraicBlockMultiColoring(const Matrix& A, const Vector& b, const 
 	auto blockOffset = std::make_unique<Block[]>(colorCount + 1);
 	CreateRow(row.get(), offset.get(), blockOffset.get(), color.get(), block.get());
 
-	OutputResult((boost::format("代数的ブロック化多色順序付け(%1%x%1%)") % BLOCK_SIZE).str(), A, row.get(), color.get());
+	OutputResult((boost::format("代数的ブロック化多色順序付け(%1%x%1%)") % BLOCK_SIZE).str(), A, row.get());
 	GaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 	SymmetryGaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 }
