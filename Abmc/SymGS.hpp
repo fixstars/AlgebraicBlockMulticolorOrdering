@@ -238,7 +238,7 @@ static void SymmetryGaussSeidel(const Matrix& A, const Vector& b, const Vector& 
 		{
 			for(auto block = blockOffset[color]; block < blockOffset[color + 1]; block++) // 同じ色の中ではブロック間に依存関係はないのでここは逆順にする必要がない
 			{
-				using SignedIndex = std::make_signed_t<decltype(offset[0])>;
+				using SignedIndex = std::make_signed_t<std::remove_reference_t<decltype(offset[0])>>;
 				const auto first = static_cast<SignedIndex>(offset[block + 1]) - 1;
 				const auto last = static_cast<SignedIndex>(offset[block]);
 				for(auto idx = first; idx >= last; idx--)
