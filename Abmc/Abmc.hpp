@@ -442,4 +442,132 @@ static void AlgebraicBlockMultiColoring(const Matrix& A, const Vector& b, const 
 	SymmetryGaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 }
 
+static void CreateRowForCuthillMckee(Index row[], Index offset[], const Level level[], const Level degree[])
+{
+	// 色番号の小さい順に並び替え
+	// ・同じ色の場合はブロック番号の小さい順
+	// ・同じブロックなら行番号の小さい順
+	auto data = std::make_unique<std::tuple<Level, Index, Index>[]>(N); // Level, degree, index
+	for(auto i = decltype(N)(0); i < N; i++)
+	{
+		data[i] = std::make_tuple(level[i], degree[i], i);
+	}
+	std::sort(data.get(), data.get() + N, [](auto left, auto right)
+	{
+		{
+			const auto leftColor = std::get<0>(left); const auto rightColor = std::get<0>(right);
+			if(leftColor != rightColor)
+			{
+				return leftColor < rightColor;
+			}
+		}
+		{
+			const auto leftBlock = std::get<1>(left); const auto rightBlock = std::get<1>(right);
+			if(leftBlock != rightBlock)
+			{
+				return leftBlock < rightBlock;
+			}
+		}
+		{
+			const auto leftIndex = std::get<2>(left); const auto rightIndex = std::get<2>(right);
+			{
+				return leftIndex < rightIndex;
+			}
+		}
+	});
+
+	// 行番号だけの配列に変換
+	std::transform(data.get(), data.get() + N, row, [](const auto d)
+	{
+		return std::get<2>(d);
+	});
+
+	// 各Levelの先頭番号
+	auto levelCount = Level(1);
+	{
+		offset[0] = 0;
+		for(auto i = decltype(N)(1); i < N; i++)
+		{
+			const auto prevBlock = std::get<0>(data[i - 1]); // level
+			const auto thisBlock = std::get<0>(data[i]); // level
+			if(prevBlock != thisBlock)
+			{
+				offset[levelCount] = i;
+				levelCount++;
+			}
+		}
+		offset[levelCount] = N;
+	}
+}
+
+static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
+{
+	constexpr auto INVALID_LEVEL = Level(0);
+	auto level = std::make_unique<Level[]>(N);
+	auto degreeIndex = std::make_unique<std::pair<Index, Index>[]>(N); // degree, index
+	auto degree = std::make_unique<Index[]>(N);
+
+	// 次数を求める
+	for (Index i = decltype(N)(0); i < N; i++)
+	{
+		const Index index = degreeIndex[i].second;
+		const auto offset = A.index1_data()[i];
+		const auto deg = A.index1_data()[i] - offset; // count
+		degreeIndex[i] = std::make_pair(deg, i);
+		degree[i] = deg;
+	}
+
+	// 1. 最小次数を探す O(N)
+	std::sort(degreeIndex.get(), degreeIndex.get() + N);
+	Level maxLevel = Level(0);
+
+	// 2. 幅優先探索 O(N)
+	while (true)
+	{
+		// 探索済みではない次数が最小となるindexの探索
+		Index minDegreeIndex = N + 1;
+		for (Index i = decltype(N)(0); i < N; i++)
+		{
+			const Index index = degreeIndex[i].second;
+			if (level[index] == INVALID_LEVEL)
+			{
+				minDegreeIndex = index;
+				break;
+			}
+		}
+
+		// すべての点を探索し終えたら終了
+		if (minDegreeIndex == N + 1) break;
+
+		std::queue<Level> que;
+		que.push(minDegreeIndex);
+		level[minDegreeIndex] = maxLevel + 1;
+		maxLevel = level[minDegreeIndex];
+
+		// cur: 今見ているノード
+		for (auto cur = que.front(); !que.empty(); que.pop()) {
+			cur = que.front();
+			const auto offset = A.index1_data()[cur];
+			const auto count = A.index1_data()[cur+1] - offset; // count
+			for (auto idx = decltype(count)(0); idx < count; idx++)
+			{
+				const auto tar = A.index2_data()[offset + idx];
+				// 隣接ノードのlevelが未割り当て
+				if (level[tar] == INVALID_LEVEL) {
+					level[tar] = level[cur] + 1;
+					que.push(tar);
+					// level[tar]は常にmaxLevelを指す
+					maxLevel = level[tar];
+				}
+			}
+		}
+
+		auto row = std::make_unique<Index[]>(N); // 並び替え後の行番号→元の行番号の変換表
+		auto offset = std::make_unique<Index[]>(maxLevel+1); // 各色の開始番号
+		CreateRowForCuthillMckee(row.get(), offset.get(), level.get(), degree.get());
+		GaussSeidelForCuthillMckee(A,b,expect, row.get(), offset.get(), maxLevel);
+		SymmetryGaussSeidelForCutHillMckee(A,b,expect, row.get(), offset.get(), maxLevel);
+	}
+}
+
 #endif

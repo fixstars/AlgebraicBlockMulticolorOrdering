@@ -58,5 +58,8 @@ int main()
 	GeometicBlockMultiColoring<4>(A, b, expect); std::cout << "####################################" << std::endl;
 	AlgebraicBlockMultiColoring<4>(A, b, expect); std::cout << "####################################" << std::endl;
 
+	// Cuthill-Mckee
+	CuthillMckee(A, b, expect); std::cout << "####################################" << std::endl;
+
 	return 0;
 }
