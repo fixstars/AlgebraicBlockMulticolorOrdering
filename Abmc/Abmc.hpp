@@ -510,7 +510,6 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 	// 次数を求める
 	for (Index i = decltype(N)(0); i < N; i++)
 	{
-		const Index index = degreeIndex[i].second;
 		const auto offset = A.index1_data()[i];
 		const auto deg = A.index1_data()[i] - offset; // count
 		degreeIndex[i] = std::make_pair(deg, i);
