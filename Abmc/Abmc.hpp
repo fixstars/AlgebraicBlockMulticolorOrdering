@@ -323,6 +323,7 @@ static void AlgebraicBlockMultiColoring(const Matrix& A, const Vector& b, const 
 {
 	constexpr auto INVALID_BLOCK = Block(0);
 	auto block = std::make_unique<Block[]>(N);
+	std::fill_n(block.get(), N, INVALID_BLOCK);
 
 	constexpr auto MAX_COUNT_PER_BLOCK = BLOCK_SIZE*BLOCK_SIZE; // 1ブロック内の要素数
 	constexpr auto MAX_BLOCK_COUNT = N; // 最大は、1ブロック1要素の時
