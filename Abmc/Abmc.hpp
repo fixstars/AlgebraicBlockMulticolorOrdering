@@ -508,7 +508,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 	auto degree = std::make_unique<Index[]>(N);
 
 	// 次数を求める
-	for (Index i = decltype(N)(0); i < N; i++)
+	for (auto i = decltype(N)(0); i < N; i++)
 	{
 		const auto offset = A.index1_data()[i];
 		const auto deg = A.index1_data()[i] - offset; // count
@@ -518,16 +518,16 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 
 	// 1. 最小次数を探す O(N)
 	std::sort(degreeIndex.get(), degreeIndex.get() + N);
-	Level maxLevel = Level(0);
+	auto maxLevel = Level(0);
 
 	// 2. 幅優先探索 O(N)
 	while (true)
 	{
 		// 探索済みではない次数が最小となるindexの探索
-		Index minDegreeIndex = N + 1;
-		for (Index i = decltype(N)(0); i < N; i++)
+		auto minDegreeIndex = N + 1;
+		for (auto i = decltype(N)(0); i < N; i++)
 		{
-			const Index index = degreeIndex[i].second;
+			const auto index = degreeIndex[i].second;
 			if (level[index] == INVALID_LEVEL)
 			{
 				minDegreeIndex = index;
