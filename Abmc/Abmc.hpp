@@ -512,7 +512,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 	for (auto i = decltype(N)(0); i < N; i++)
 	{
 		const auto offset = A.index1_data()[i];
-		const auto deg = A.index1_data()[i] - offset; // count
+		const auto deg = A.index1_data()[i+1] - offset; // count
 		degreeIndex[i] = std::make_pair(deg, i);
 		degree[i] = deg;
 	}
