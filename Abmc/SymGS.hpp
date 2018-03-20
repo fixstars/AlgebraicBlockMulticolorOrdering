@@ -162,13 +162,13 @@ static void GaussSeidel(const Matrix& A, const Vector& b, const Vector& expect,
 	});
 }
 
-// CutHill-Mckeeのガウスザイデル法
+// Cuthill-Mckeeのガウスザイデル法
 static void GaussSeidelForCuthillMckee(const Matrix& A, const Vector& b, const Vector& expect,
 	const Index row[],
 	const Index offset[],
 	const Color levelConut)
 {
-	Solve("CutHill-Mckeeガウスザイデル法", expect, [&A, &b, &row, &offset, levelConut](Vector& x)
+	Solve("Cuthill-Mckeeガウスザイデル法", expect, [&A, &b, &row, &offset, levelConut](Vector& x)
 	{
 		// 順
 		for (auto level = decltype(levelConut)(0); level < levelConut; level++)
@@ -271,13 +271,13 @@ static void SymmetryGaussSeidel(const Matrix& A, const Vector& b, const Vector& 
 	});
 }
 
-// CutHill-Mckeeのガウスザイデル法
-static void SymmetryGaussSeidelForCutHillMckee(const Matrix& A, const Vector& b, const Vector& expect,
+// Cuthill-Mckeeのガウスザイデル法
+static void SymmetryGaussSeidelForCuthillMckee(const Matrix& A, const Vector& b, const Vector& expect,
 	const Index row[],
 	const Index offset[],
 	const Level levelCount)
 {
-	Solve("CutHill-Mckee対称ガウスザイデル法", expect, [&A, &b, &row, &offset, levelCount](Vector& x)
+	Solve("Cuthill-Mckee対称ガウスザイデル法", expect, [&A, &b, &row, &offset, levelCount](Vector& x)
 	{
 		// 順
 		for(auto level = decltype(levelCount)(0); level < levelCount; level++)
