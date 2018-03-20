@@ -558,13 +558,13 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 				}
 			}
 		}
-
-		auto row = std::make_unique<Index[]>(N); // 並び替え後の行番号→元の行番号の変換表
-		auto offset = std::make_unique<Index[]>(maxLevel+1); // 各色の開始番号
-		CreateRowForCuthillMckee(row.get(), offset.get(), level.get(), degree.get());
-		GaussSeidelForCuthillMckee(A,b,expect, row.get(), offset.get(), maxLevel);
-		SymmetryGaussSeidelForCuthillMckee(A,b,expect, row.get(), offset.get(), maxLevel);
 	}
+
+	auto row = std::make_unique<Index[]>(N); // 並び替え後の行番号→元の行番号の変換表
+	auto offset = std::make_unique<Index[]>(maxLevel+1); // 各色の開始番号
+	CreateRowForCuthillMckee(row.get(), offset.get(), level.get(), degree.get());
+	GaussSeidelForCuthillMckee(A,b,expect, row.get(), offset.get(), maxLevel);
+	SymmetryGaussSeidelForCuthillMckee(A,b,expect, row.get(), offset.get(), maxLevel);
 }
 
 #endif
