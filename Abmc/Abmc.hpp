@@ -585,6 +585,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 			offset[levelCount] = N;
 		}
 	}
+	OutputResult("同じレベル内の隣接点を除外するCuthill-Mckee法", A, row.get());
 	GaussSeidelForCuthillMckee(A,b,expect, row.get(), offset.get(), maxLevel);
 	SymmetryGaussSeidelForCuthillMckee(A,b,expect, row.get(), offset.get(), maxLevel);
 }
