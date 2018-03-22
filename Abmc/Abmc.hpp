@@ -515,7 +515,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 					{
 						// jj: 隣接点の隣接点
 						const auto jj = A.index2_data()[offsetJ + jdx];
-						// jjが未探索(探索済みのIndexを登録する意味はない)
+						// jjが未探索(探索済みのIndexを無視する意味はない)
 						if (level[jj] == INVALID_LEVEL) {
 							adjacentPoint.insert(jj);
 						}
