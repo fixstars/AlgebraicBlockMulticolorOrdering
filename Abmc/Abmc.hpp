@@ -533,7 +533,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 		// すべての点を探索し終えたら終了
 		if (minDegreeIndexItr == degreeIndex.get() + N) break;
 
-		auto minDegreeIndex = minDegreeIndexItr->second;
+		const auto minDegreeIndex = minDegreeIndexItr->second;
 
 		std::queue<Level> que;
 		que.push(minDegreeIndex);
@@ -543,7 +543,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 		// i: 今見ている点
 		for (; !que.empty(); que.pop())
 		{
-			auto i = que.front();
+			const auto i = que.front();
 			const auto levelI = level[i];
 			const auto offset = A.index1_data()[i];
 			const auto count = A.index1_data()[i+1] - offset; // count
