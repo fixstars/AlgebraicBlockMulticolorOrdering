@@ -541,9 +541,9 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 		maxLevel = level[minDegreeIndex];
 
 		// cur: 今見ているノード
-		for (auto i = que.front(); !que.empty(); que.pop())
+		for (; !que.empty(); que.pop())
 		{
-			i = que.front();
+			auto i = que.front();
 			const auto offset = A.index1_data()[i];
 			const auto count = A.index1_data()[i+1] - offset; // count
 			for (auto idx = decltype(count)(0); idx < count; idx++)
