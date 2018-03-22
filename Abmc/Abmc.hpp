@@ -490,7 +490,6 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 		for (; !que.empty(); que.pop())
 		{
 			const auto i = que.front();
-			std::cout << i << std::endl;
 			const auto levelI = level[i];
 			const auto offset = A.index1_data()[i];
 			const auto count = A.index1_data()[i+1] - offset; // count
@@ -508,7 +507,6 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 					level[j] = maxLevel;
 					prevLevel = maxLevel;
 					que.push(j);
-					std::cout << j << std::endl;
 
 					// 隣接点の隣接点用のoffsetとcount
 					const auto offsetJ = A.index1_data()[j];
