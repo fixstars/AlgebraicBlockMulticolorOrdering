@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <queue>
+#include <set>
 #include "boost/format.hpp"
 
 #include "common.hpp"
@@ -484,20 +485,42 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 		maxLevel = level[minDegreeIndex];
 
 		//幅優先探索
+		std::set<Index> adjacentPoint; //同じレベル内の隣接点をメモ
+		Level prevLevel = 0; // 一つ前の探索の時点でのレベル
 		for (; !que.empty(); que.pop())
 		{
 			const auto i = que.front();
+			std::cout << i << std::endl;
 			const auto levelI = level[i];
 			const auto offset = A.index1_data()[i];
 			const auto count = A.index1_data()[i+1] - offset; // count
 			maxLevel = levelI + 1;
+			if (prevLevel < maxLevel)
+			{
+				adjacentPoint.clear();
+			}
 			for (auto idx = decltype(count)(0); idx < count; idx++)
 			{
 				const auto j = A.index2_data()[offset + idx];
-				// 隣接点のlevelが未割り当て
-				if (level[j] == INVALID_LEVEL) {
+				// 隣接点のlevelが未割り当て かつ どの隣接点にも属していない
+				if (level[j] == INVALID_LEVEL && adjacentPoint.find(j) == adjacentPoint.end()) {
 					level[j] = maxLevel;
+					prevLevel = maxLevel;
 					que.push(j);
+					std::cout << j << std::endl;
+
+					// 隣接点の隣接点用のoffsetとcount
+					const auto offsetJ = A.index1_data()[j];
+					const auto countJ = A.index1_data()[j+1] - offsetJ;
+					for (int jdx = decltype(countJ)(0); jdx < countJ; jdx++)
+					{
+						// jj: 隣接点の隣接点
+						const auto jj = A.index2_data()[offsetJ + jdx];
+						// jjが未探索(探索済みのIndexを登録する意味はない)
+						if (level[jj] == INVALID_LEVEL) {
+							adjacentPoint.insert(jj);
+						}
+					}
 				}
 			}
 		}
