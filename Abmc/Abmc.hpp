@@ -547,19 +547,19 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 			const auto levelI = level[i];
 			const auto offset = A.index1_data()[i];
 			const auto count = A.index1_data()[i+1] - offset; // count
+			maxLevel = levelI + 1;
 			for (auto idx = decltype(count)(0); idx < count; idx++)
 			{
 				const auto j = A.index2_data()[offset + idx];
 				// 隣接点のlevelが未割り当て
 				if (level[j] == INVALID_LEVEL) {
-					level[j] = levelI + 1;
+					level[j] = maxLevel;
 					que.push(j);
-					// level[j]は常にmaxLevelを指す
-					maxLevel = level[j];
 				}
 			}
 		}
 	}
+	maxLevel--; //最後のqueが読まれたタイミングでmaxLevelが1大きくなるためここで減らす
 
 	auto row = std::make_unique<Index[]>(N); // 並び替え後の行番号→元の行番号の変換表
 	auto offset = std::make_unique<Index[]>(maxLevel+1); // 各レベルの開始番号
