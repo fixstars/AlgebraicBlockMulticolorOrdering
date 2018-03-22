@@ -467,7 +467,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 	while (true)
 	{
 		// 探索済みではない次数が最小となるindexの探索
-		auto minDegreeIndexItr = std::find_if(degreeIndex.get(), degreeIndex.get() + N, [&level, &INVALID_LEVEL](const auto& degIndex)
+		auto minDegreeIndexItr = std::find_if(degreeIndex.get(), degreeIndex.get() + N, [&level, INVALID_LEVEL](const auto& degIndex)
 		{
 			return level[degIndex.second] == INVALID_LEVEL;
 		});
