@@ -363,9 +363,9 @@ static void AlgebraicBlockMultiColoring(const Matrix& A, const Vector& b, const 
 				}
 
 				// ブロックに空きがあれば
-				for(auto j = candidate.front(); !candidate.empty() && (countPerBlock[blockCount] < MAX_COUNT_PER_BLOCK); candidate.pop())
+				for(;!candidate.empty() && (countPerBlock[blockCount] < MAX_COUNT_PER_BLOCK); candidate.pop())
 				{
-					j = candidate.front();
+					const auto j = candidate.front();
 
 					// 候補点が既に追加済みでなければ
 					if(block[j] == INVALID_BLOCK)
