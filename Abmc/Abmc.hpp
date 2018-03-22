@@ -486,7 +486,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 
 		//幅優先探索
 		std::set<Index> adjacentPoint; //同じレベル内の隣接点をメモ
-		Level prevLevel = 0; // 一つ前の探索の時点でのレベル
+		Level prevLevel = maxLevel; // 一つ前の探索の時点でのレベル
 		for (; !que.empty(); que.pop())
 		{
 			const auto i = que.front();
