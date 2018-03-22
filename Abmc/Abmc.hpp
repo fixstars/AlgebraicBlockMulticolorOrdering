@@ -544,6 +544,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 		for (; !que.empty(); que.pop())
 		{
 			auto i = que.front();
+			const auto levelI = level[i];
 			const auto offset = A.index1_data()[i];
 			const auto count = A.index1_data()[i+1] - offset; // count
 			for (auto idx = decltype(count)(0); idx < count; idx++)
@@ -551,7 +552,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 				const auto j = A.index2_data()[offset + idx];
 				// 隣接点のlevelが未割り当て
 				if (level[j] == INVALID_LEVEL) {
-					level[j] = level[i] + 1;
+					level[j] = levelI + 1;
 					que.push(j);
 					// level[j]は常にmaxLevelを指す
 					maxLevel = level[j];
