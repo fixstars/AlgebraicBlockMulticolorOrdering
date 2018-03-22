@@ -444,9 +444,9 @@ static void AlgebraicBlockMultiColoring(const Matrix& A, const Vector& b, const 
 
 static void CreateRowForCuthillMckee(Index row[], Index offset[], const Level level[], const Level degree[])
 {
-	// 色番号の小さい順に並び替え
-	// ・同じ色の場合はブロック番号の小さい順
-	// ・同じブロックなら行番号の小さい順
+	// レベルの小さい順に並び替え
+	// ・同じレベルの場合は次数の小さい順
+	// ・同じ次数なら行番号の小さい順
 	auto data = std::make_unique<std::tuple<Level, Index, Index>[]>(N); // Level, degree, index
 	for(auto i = decltype(N)(0); i < N; i++)
 	{
@@ -455,17 +455,17 @@ static void CreateRowForCuthillMckee(Index row[], Index offset[], const Level le
 	std::sort(data.get(), data.get() + N, [](auto left, auto right)
 	{
 		{
-			const auto leftColor = std::get<0>(left); const auto rightColor = std::get<0>(right);
-			if(leftColor != rightColor)
+			const auto leftLevel = std::get<0>(left); const auto rightLevel = std::get<0>(right);
+			if(leftLevel != rightLevel)
 			{
-				return leftColor < rightColor;
+				return leftLevel < rightLevel;
 			}
 		}
 		{
-			const auto leftBlock = std::get<1>(left); const auto rightBlock = std::get<1>(right);
-			if(leftBlock != rightBlock)
+			const auto leftDegree = std::get<1>(left); const auto rightDegree = std::get<1>(right);
+			if(leftDegree != rightDegree)
 			{
-				return leftBlock < rightBlock;
+				return leftDegree < rightDegree;
 			}
 		}
 		{
@@ -488,9 +488,9 @@ static void CreateRowForCuthillMckee(Index row[], Index offset[], const Level le
 		offset[0] = 0;
 		for(auto i = decltype(N)(1); i < N; i++)
 		{
-			const auto prevBlock = std::get<0>(data[i - 1]); // level
-			const auto thisBlock = std::get<0>(data[i]); // level
-			if(prevBlock != thisBlock)
+			const auto prevLevel = std::get<0>(data[i - 1]);
+			const auto thisLevel = std::get<0>(data[i]);
+			if(prevLevel != thisLevel)
 			{
 				offset[levelCount] = i;
 				levelCount++;
@@ -561,7 +561,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 	}
 
 	auto row = std::make_unique<Index[]>(N); // 並び替え後の行番号→元の行番号の変換表
-	auto offset = std::make_unique<Index[]>(maxLevel+1); // 各色の開始番号
+	auto offset = std::make_unique<Index[]>(maxLevel+1); // 各レベルの開始番号
 	CreateRowForCuthillMckee(row.get(), offset.get(), level.get(), degree.get());
 	GaussSeidelForCuthillMckee(A,b,expect, row.get(), offset.get(), maxLevel);
 	SymmetryGaussSeidelForCuthillMckee(A,b,expect, row.get(), offset.get(), maxLevel);
