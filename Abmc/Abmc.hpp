@@ -463,11 +463,11 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 	std::sort(degreeIndex.get(), degreeIndex.get() + N);
 	auto maxLevel = Level(0);
 
-	// 2. 幅優先探索 O(N)
+	// 点群が別れているときに、再度最小次数を探して幅優先探索をするためのループ O(N)
 	while (true)
 	{
 		// 探索済みではない次数が最小となるindexの探索
-		auto minDegreeIndexItr = std::find_if(degreeIndex.get(), degreeIndex.get() + N, [&level, INVALID_LEVEL](const auto& degIndex)
+		auto minDegreeIndexItr = std::find_if(degreeIndex.get(), degreeIndex.get() + N, [&level = static_cast<const std::unique_ptr<Level[]>&>(level), INVALID_LEVEL](const auto& degIndex)
 		{
 			return level[degIndex.second] == INVALID_LEVEL;
 		});
@@ -477,12 +477,13 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 
 		const auto minDegreeIndex = minDegreeIndexItr->second;
 
+		// 最小次数の点を初期探索点とする(最初に呼ばれたときはレベル1スタート)
 		std::queue<Level> que;
 		que.push(minDegreeIndex);
 		level[minDegreeIndex] = maxLevel + 1;
 		maxLevel = level[minDegreeIndex];
 
-		// i: 今見ている点
+		//幅優先探索
 		for (; !que.empty(); que.pop())
 		{
 			const auto i = que.front();
