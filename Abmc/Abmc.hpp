@@ -501,8 +501,8 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 				}
 			}
 		}
+		maxLevel--; //最後のqueが読まれたタイミングでmaxLevelが1大きくなるためここで減らす
 	}
-	maxLevel--; //最後のqueが読まれたタイミングでmaxLevelが1大きくなるためここで減らす
 
 	auto row = std::make_unique<Index[]>(N); // 並び替え後の行番号→元の行番号の変換表
 	auto offset = std::make_unique<Index[]>(maxLevel+1); // 各レベルの開始番号
