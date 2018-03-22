@@ -442,7 +442,7 @@ static void AlgebraicBlockMultiColoring(const Matrix& A, const Vector& b, const 
 	SymmetryGaussSeidel(A, b, expect, row.get(), blockOffset.get(), offset.get(), colorCount);
 }
 
-static void CreateRowForCuthillMckee(Index row[], Index offset[], const Level level[], const Level degree[])
+static void CreateRowForCuthillMckee(Index row[], Index offset[], const Level level[], const Index degree[])
 {
 	// レベルの小さい順に並び替え
 	// ・同じレベルの場合は次数の小さい順
