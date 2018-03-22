@@ -540,7 +540,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 		level[minDegreeIndex] = maxLevel + 1;
 		maxLevel = level[minDegreeIndex];
 
-		// cur: 今見ているノード
+		// cur: 今見ている点
 		for (; !que.empty(); que.pop())
 		{
 			auto i = que.front();
@@ -549,7 +549,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 			for (auto idx = decltype(count)(0); idx < count; idx++)
 			{
 				const auto j = A.index2_data()[offset + idx];
-				// 隣接ノードのlevelが未割り当て
+				// 隣接点のlevelが未割り当て
 				if (level[j] == INVALID_LEVEL) {
 					level[j] = level[i] + 1;
 					que.push(j);
