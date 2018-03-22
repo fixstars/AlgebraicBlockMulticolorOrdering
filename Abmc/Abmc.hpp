@@ -540,7 +540,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 		level[minDegreeIndex] = maxLevel + 1;
 		maxLevel = level[minDegreeIndex];
 
-		// cur: 今見ている点
+		// i: 今見ている点
 		for (; !que.empty(); que.pop())
 		{
 			auto i = que.front();
@@ -553,7 +553,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 				if (level[j] == INVALID_LEVEL) {
 					level[j] = level[i] + 1;
 					que.push(j);
-					// level[tar]は常にmaxLevelを指す
+					// level[j]は常にmaxLevelを指す
 					maxLevel = level[j];
 				}
 			}
