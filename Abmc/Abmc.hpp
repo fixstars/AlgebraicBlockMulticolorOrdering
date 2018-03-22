@@ -503,7 +503,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 			for (auto idx = decltype(count)(0); idx < count; idx++)
 			{
 				const auto j = A.index2_data()[offset + idx];
-				// 隣接点のlevelが未割り当て かつ どの隣接点にも属していない
+				// 隣接点の levelが未割り当て かつ 同じレベルのすでに割り当てられる点に隣接していない
 				if (level[j] == INVALID_LEVEL && adjacentPoint.find(j) == adjacentPoint.end()) {
 					level[j] = maxLevel;
 					prevLevel = maxLevel;
