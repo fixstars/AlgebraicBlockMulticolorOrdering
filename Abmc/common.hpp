@@ -12,5 +12,6 @@ using Vector = boost::numeric::ublas::vector<double>;
 using Index = std::remove_const_t<decltype(N)>;
 using Color = Index;
 using Block = Index;
+using Level = Index;
 
 #endif
