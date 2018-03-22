@@ -511,7 +511,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 					// 隣接点の隣接点用のoffsetとcount
 					const auto offsetJ = A.index1_data()[j];
 					const auto countJ = A.index1_data()[j+1] - offsetJ;
-					for (int jdx = decltype(countJ)(0); jdx < countJ; jdx++)
+					for (auto jdx = decltype(countJ)(0); jdx < countJ; jdx++)
 					{
 						// jj: 隣接点の隣接点
 						const auto jj = A.index2_data()[offsetJ + jdx];
