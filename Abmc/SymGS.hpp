@@ -292,7 +292,7 @@ static void SymmetryGaussSeidelForCuthillMckee(const Matrix& A, const Vector& b,
 		// 逆順
 		for(auto level = static_cast<std::make_signed_t<decltype(levelCount)>>(levelCount - 1); level > 0; level--)
 		{
-			for(auto idx = offset[level+1] - 1; idx >= offset[level]; idx--) // 隣接ノードの排除をしていないので、同じLevel内でも逆順にする必要がある。
+			for(auto idx = offset[level]; idx < offset[level+1]; idx++) // 同じレベル内では、依存関係はないのでここは逆順にする必要がない
 			{
 				const auto i = row[idx];
 				GaussSeidelMain(x, A, b, i);
