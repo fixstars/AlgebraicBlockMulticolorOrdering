@@ -495,6 +495,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 			const auto offset = A.index1_data()[i];
 			const auto count = A.index1_data()[i+1] - offset; // count
 			maxLevel = levelI + 1;
+			// 新しいレベルの探索になるため、隣接点をクリア
 			if (prevLevel < maxLevel)
 			{
 				adjacentPoint.clear();
