@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <queue>
+#include <set>
 #include "boost/format.hpp"
 
 #include "common.hpp"
@@ -484,6 +485,8 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 		maxLevel = level[minDegreeIndex];
 
 		//幅優先探索
+		std::set<Index> adjacentPoint; //同じレベル内の隣接点をメモ
+		auto prevLevel = maxLevel; // 一つ前に代入したレベル
 		for (; !que.empty(); que.pop())
 		{
 			const auto i = que.front();
@@ -491,13 +494,32 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 			const auto offset = A.index1_data()[i];
 			const auto count = A.index1_data()[i+1] - offset; // count
 			maxLevel = levelI + 1;
+			// 新しいレベルの探索になるため、無視する隣接点をクリア
+			if (prevLevel < maxLevel)
+			{
+				adjacentPoint.clear();
+			}
 			for (auto idx = decltype(count)(0); idx < count; idx++)
 			{
 				const auto j = A.index2_data()[offset + idx];
-				// 隣接点のlevelが未割り当て
-				if (level[j] == INVALID_LEVEL) {
+				// 隣接点の levelが未割り当て かつ 同じレベルのすでに割り当てられる点に隣接していない
+				if (level[j] == INVALID_LEVEL && adjacentPoint.find(j) == adjacentPoint.end()) {
 					level[j] = maxLevel;
+					prevLevel = maxLevel;
 					que.push(j);
+
+					// 隣接点の隣接点用のoffsetとcount
+					const auto offsetJ = A.index1_data()[j];
+					const auto countJ = A.index1_data()[j+1] - offsetJ;
+					for (auto jdx = decltype(countJ)(0); jdx < countJ; jdx++)
+					{
+						// jj: 隣接点の隣接点
+						const auto jj = A.index2_data()[offsetJ + jdx];
+						// jjが未探索(探索済みのIndexを無視する意味はない)
+						if (level[jj] == INVALID_LEVEL) {
+							adjacentPoint.insert(jj);
+						}
+					}
 				}
 			}
 		}
@@ -563,6 +585,7 @@ static void CuthillMckee(const Matrix& A, const Vector& b, const Vector& expect)
 			offset[levelCount] = N;
 		}
 	}
+	OutputResult("同じレベル内の隣接点を除外するCuthill-Mckee法", A, row.get());
 	GaussSeidelForCuthillMckee(A,b,expect, row.get(), offset.get(), maxLevel);
 	SymmetryGaussSeidelForCuthillMckee(A,b,expect, row.get(), offset.get(), maxLevel);
 }
