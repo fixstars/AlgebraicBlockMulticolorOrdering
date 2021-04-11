@@ -24,15 +24,15 @@ int main()
 		}
 	}
 
-	std::cout << "元行列" << std::endl;
-	for(auto i = decltype(N)(0); i < N; i++)
-	{
-		for(auto j = decltype(N)(0); j < N; j++)
-		{
-			std::cout << A(i, j) << ", ";
-		}
-		std::cout << std::endl;
-	}
+	// std::cout << "元行列" << std::endl;
+	// for(auto i = decltype(N)(0); i < N; i++)
+	// {
+	// 	for(auto j = decltype(N)(0); j < N; j++)
+	// 	{
+	// 		std::cout << A(i, j) << ", ";
+	// 	}
+	// 	std::cout << std::endl;
+	// }
 	std::cout << "####################################" << std::endl;
 
 	Vector b(N);
@@ -46,20 +46,20 @@ int main()
 	GaussSeidel2(A, b, expect); std::cout << "####################################" << std::endl;
 	SymmetryGaussSeidel(A, b, expect); std::cout << "####################################" << std::endl;
 
-	// 多色順序順序付け
-	GeometicMultiColoring(A, b, expect); std::cout << "####################################" << std::endl;
-	AlgebraicMultiColoring(A, b, expect); std::cout << "####################################" << std::endl;
+	// // 多色順序順序付け
+	// GeometicMultiColoring(A, b, expect); std::cout << "####################################" << std::endl;
+	// AlgebraicMultiColoring(A, b, expect); std::cout << "####################################" << std::endl;
 
-	// 2x2にブロック化
-	GeometicBlockMultiColoring<2>(A, b, expect); std::cout << "####################################" << std::endl;
-	AlgebraicBlockMultiColoring<2>(A, b, expect); std::cout << "####################################" << std::endl;
+	// // 2x2にブロック化
+	// GeometicBlockMultiColoring<2>(A, b, expect); std::cout << "####################################" << std::endl;
+	// AlgebraicBlockMultiColoring<2>(A, b, expect); std::cout << "####################################" << std::endl;
 
-	// 4x4にブロック化
-	GeometicBlockMultiColoring<4>(A, b, expect); std::cout << "####################################" << std::endl;
-	AlgebraicBlockMultiColoring<4>(A, b, expect); std::cout << "####################################" << std::endl;
+	// // 4x4にブロック化
+	// GeometicBlockMultiColoring<4>(A, b, expect); std::cout << "####################################" << std::endl;
+	// AlgebraicBlockMultiColoring<4>(A, b, expect); std::cout << "####################################" << std::endl;
 
-	// Cuthill-Mckee
-	CuthillMckee(A, b, expect); std::cout << "####################################" << std::endl;
+	// // Cuthill-Mckee
+	// CuthillMckee(A, b, expect); std::cout << "####################################" << std::endl;
 
 	return 0;
 }

@@ -84,6 +84,7 @@ static void Jacobi(const Matrix& A, const Vector& b, const Vector& expect)
 	Solve("ヤコビ法", expect, [&A, &b, &x_old](Vector& x)
 	{
 		std::copy(x.cbegin(), x.cend(), x_old.begin());
+		#pragma omp parallel for
 		for(auto i = decltype(N)(0); i < N; i++)
 		{
 			JacobiMain(x, A, b, x_old, i);
@@ -96,6 +97,7 @@ static void GaussSeidel(const Matrix& A, const Vector& b, const Vector& expect)
 {
 	Solve("ガウスザイデル法", expect, [&A, &b](Vector& x)
 	{
+		#pragma omp parallel for
 		for(auto i = decltype(N)(0); i < N; i++)
 		{
 			GaussSeidelMain(x, A, b, i);
@@ -108,10 +110,12 @@ static void GaussSeidel2(const Matrix& A, const Vector& b, const Vector& expect)
 {
 	Solve("ガウスザイデル法x2", expect, [&A, &b](Vector& x)
 	{
+		#pragma omp parallel for
 		for(auto i = decltype(N)(0); i < N; i++)
 		{
 			GaussSeidelMain(x, A, b, i);
 		}
+		#pragma omp parallel for
 		for(auto i = decltype(N)(0); i < N; i++)
 		{
 			GaussSeidelMain(x, A, b, i);
@@ -188,12 +192,14 @@ static void SymmetryGaussSeidel(const Matrix& A, const Vector& b, const Vector& 
 	Solve("対称ガウスザイデル法", expect, [&A, &b](Vector& x)
 	{
 		// 順
+		#pragma omp parallel for
 		for(auto i = decltype(N)(0); i < N; i++)
 		{
 			GaussSeidelMain(x, A, b, i);
 		}
 
 		// 逆順
+		#pragma omp parallel for
 		for(auto i = static_cast<std::make_signed_t<decltype(N)>>(N - 1); i >= 0; i--)
 		{
 			GaussSeidelMain(x, A, b, i);

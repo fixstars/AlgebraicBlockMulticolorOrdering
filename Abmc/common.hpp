@@ -4,7 +4,7 @@
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 
-static constexpr std::size_t n = 8;
+static constexpr std::size_t n = 64;
 static constexpr std::size_t N = n*n;
 
 using Matrix = boost::numeric::ublas::compressed_matrix<double>;

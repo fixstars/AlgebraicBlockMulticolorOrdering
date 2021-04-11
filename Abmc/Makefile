@@ -1,5 +1,5 @@
 COMPILER = clang++
-CFLAGS   = -g -MMD -MP -O3 -std=c++14 -stdlib=libc++ -Wall -Wextra -Werror -Wfatal-errors -Wno-unknown-pragmas -march=native -mtune=native
+CFLAGS   = -g -MMD -MP -O3 -std=c++14 -stdlib=libc++ -Wall -Wextra -Wfatal-errors -Wno-unknown-pragmas -march=native -mtune=native# -fopenmp
 LDFLAGS  = ${CFLAGS}
 LIBS     =
 INCLUDE  =

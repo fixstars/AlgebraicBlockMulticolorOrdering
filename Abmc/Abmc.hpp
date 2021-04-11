@@ -54,14 +54,14 @@ static void OutputResult(const std::string name, const Matrix& A, const Index ro
 	}
 
 	std::cout << name << std::endl;
-	for(auto i = decltype(N)(0); i < N; i++)
-	{
-		for(auto j = decltype(N)(0); j < N; j++)
-		{
-			std::cout << B(i, j) << ", ";
-		}
-		std::cout << std::endl;
-	}
+	// for(auto i = decltype(N)(0); i < N; i++)
+	// {
+	// 	for(auto j = decltype(N)(0); j < N; j++)
+	// 	{
+	// 		std::cout << B(i, j) << ", ";
+	// 	}
+	// 	std::cout << std::endl;
+	// }
 }
 
 // （非ブロック化）多色順序付けの行番号配列を生成
